@@ -1,0 +1,298 @@
+websites:
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/boards/raspberry-pi-4-computer-modell-b-8gb-ram
+    type: Pi 4
+    ram: 8
+    shop: berrybase
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/boards/raspberry-pi-4-computer-modell-b-4gb-ram
+    type: Pi 4
+    ram: 4
+    shop: berrybase
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/boards/raspberry-pi-4-computer-modell-b-2gb-ram
+    type: Pi 4
+    ram: 2
+    shop: berrybase
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/boards/raspberry-pi-4-computer-modell-b-1gb-ram
+    type: Pi 4
+    ram: 1
+    shop: berrybase
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/kits/raspberry-pi-4-computer-modell-b-8gb-elementary-kit
+    type: Pi 4
+    ram: 8
+    shop: berrybase
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/kits/raspberry-pi-4-computer-modell-b-4gb-elementary-kit
+    type: Pi 4
+    ram: 4
+    shop: berrybase
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/kits/raspberry-pi-4-computer-modell-b-2gb-elementary-kit
+    type: Pi 4
+    ram: 2
+    shop: berrybase
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/boards/raspberry-pi-3-modell-b
+    type: Pi 3
+    ram: 1
+    shop: berrybase
+  - url: https://www.berrybase.de/neu/raspberry-pi-400-de
+    type: Pi 400
+    ram: 4
+    shop: berrybase
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/compute-modules/raspberry-pi-compute-module-4-8gb-ram-32gb-flash-wlan-43-bt
+    type: Pi 4 module 32
+    ram: 8
+    shop: berrybase
+  - url: https://electronics.semaf.at/Raspberry-Pi-4-B-4x-15GHz-CPU-4GB-RAM-Bluetooth-5-WLAN
+    type: Pi 4
+    ram: 4
+    shop: semaf
+  - url: https://electronics.semaf.at/Raspberry-Pi-4-B-4x-15GHz-CPU-8GB-DDR4-RAM-BLE5-WLAN
+    type: Pi 4
+    ram: 8
+    shop: semaf
+  - url: https://electronics.semaf.at/Raspberry-Pi-4-15GHz-ARM-Cortex-A72-2GB-LPDDR4-RAM
+    type: Pi 4
+    ram: 2
+    shop: semaf
+  - url: https://electronics.semaf.at/Raspberry-Pi-4-15GHz-ARM-Cortex-A72-1GB-LPDDR4-RAM
+    type: Pi 4
+    ram: 1
+    shop: semaf
+    # buyzero
+  - url: https://buyzero.de/products/raspberry-pi-4b?variant=28034031517798
+    type: Pi 4
+    ram: 2
+    shop: buyzero
+  - url: https://buyzero.de/products/raspberry-pi-4b?variant=40326652919988
+    type: Pi 4
+    ram: 4
+    shop: buyzero
+  - url: https://buyzero.de/products/raspberry-pi-4b?variant=42561717666035
+    type: Pi 4
+    ram: 1
+    shop: buyzero
+  - url: https://buyzero.de/products/raspberry-pi-4b?variant=40326652887220
+    type: Pi 4
+    ram: 2
+    shop: buyzero
+  - url: https://buyzero.de/products/raspberry-pi-4b?variant=40326653214900
+    type: Pi 4
+    ram: 4
+    shop: buyzero
+    ##elv
+  - url: https://de.elv.com/raspberry-pi-4-model-b-2gb-ram-250569
+    type: Pi 4
+    ram: 4
+    shop: elv
+  - url: https://de.elv.com/raspberry-pi-3-modell-b-1-gb-123499
+    type: Pi 3
+    ram: 1
+    shop: elv
+  - url: https://de.elv.com/raspberry-pi-4-model-b-2gb-ram-250569?fs=2890915308&c=590
+    type: Pi 4
+    ram: 2
+    shop: elv
+  - url: https://de.elv.com/raspberry-pi-4-model-b-1gb-ram-250570?fs=2890915308&c=590
+    type: Pi 4
+    ram: 1
+    shop: elv
+  - url: https://de.elv.com/raspberry-pi-4-model-b-4gb-ram-250568?fs=2890915308&c=590
+    type: Pi 4
+    ram: 4
+    shop: elv
+  - url: https://de.elv.com/raspberry-pi-4-model-b-8gb-ram-250567?fs=2890915308&c=590
+    type: Pi 4
+    ram: 8
+    shop: elv
+    #welectron
+  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-1-GB-RAM
+    type: Pi 4
+    ram: 1
+    shop: welectron
+  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-2-GB-RAM
+    type: Pi 4
+    ram: 2
+    shop: welectron
+  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-4-GB-RAM
+    type: Pi 4
+    ram: 4
+    shop: welectron
+  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-4-GB-RAM
+    type: Pi 4
+    ram: 4
+    shop: welectron
+  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-8-GB-RAM
+    type: Pi 4
+    ram: 8
+    shop: welectron
+    #pichop.ch
+  - url: https://www.pi-shop.ch/raspberry-pi-4-model-b-1gb
+    type: Pi 4
+    ram: 1
+    shop: pishopch
+  - url: https://www.pi-shop.ch/raspberry-pi-4-model-b-2gb
+    type: Pi 4
+    ram: 2
+    shop: pishopch
+  - url: https://www.pi-shop.ch/raspberry-pi-4-model-b-4gb
+    type: Pi 4
+    ram: 4
+    shop: pishopch
+  - url: https://www.pi-shop.ch/raspberry-pi-4-model-b-8gb
+    type: Pi 4
+    ram: 8
+    shop: pishopch
+  - url: https://www.pi-shop.ch/raspberry-pi-3-model-b
+    type: Pi 3
+    ram: 1
+    shop: pishopch
+    ##funk24
+  - url: https://shop.funk24.net/raspberry-pi-4-model-b-mit-1-gb-ram
+    type: Pi 4
+    ram: 1
+    shop: funk24
+  - url: https://shop.funk24.net/raspberry-pi-4-model-b-mit-2-gb-ram
+    type: Pi 4
+    ram: 2
+    shop: funk24
+  - url: https://shop.funk24.net/raspberry-pi-4-model-b-mit-4-gb-ram
+    type: Pi 4
+    ram: 4
+    shop: funk24
+  - url: https://shop.funk24.net/raspberry-pi-4-model-b-mit-8-gb-ram
+    type: Pi 4
+    ram: 8
+    shop: funk24
+    ## reichelt
+  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-8-gb-ram-wlan-bt-rasp-pi-4-b-8gb-p276923.html?&trstct=pos_0&nbc=1
+    type: Pi 4
+    ram: 8
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-1-gb-ram-wlan-bt-rasp-pi-4-b-1gb-p259874.html?&trstct=pol_1&nbc=1
+    type: Pi 4
+    ram: 1
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-1gb-ram-16gb-emmc-wlan-rpi-cm4w-1gb16gb-p290501.html?&trstct=pol_2&nbc=1
+    type: Pi 4 module 16
+    ram: 1
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-1gb-ram-16gb-emmc-rpi-cm4-1gb16gb-p290497.html?&trstct=pol_3&nbc=1
+    type: Pi 4 module 16
+    ram: 1
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-1gb-ram-32gb-emmc-wlan-rpi-cm4w-1gb32gb-p290502.html?&trstct=pol_4&nbc=1
+    type: Pi 4 module 32
+    ram: 1
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-2-gb-ram-wlan-bt-rasp-pi-4-b-2gb-p259919.html?&trstct=pol_13&nbc=1
+    type: Pi 4
+    ram: 2
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-16gb-emmc-wlan-rpi-cm4w-2gb16gb-p290533.html?&trstct=pol_2&nbc=1
+    type: Pi 4 module 16
+    ram: 2
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-16gb-emmc-rpi-cm4-2gb16gb-p290528.html?&trstct=pol_3&nbc=1
+    type: Pi 4 module 16
+    ram: 2
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-32gb-emmc-wlan-rpi-cm4w-2gb32gb-p290534.html?&trstct=pol_4&nbc=1
+    type: Pi 4 module 32
+    ram: 2
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-32gb-emmc-rpi-cm4-2gb32gb-p290529.html?&trstct=pol_5&nbc=1
+    type: Pi 4 module 32
+    ram: 2
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-3-b-4x-1-4-ghz-1-gb-ram-wlan-bt-raspberry-pi-3b--p217696.html?&trstct=pol_9&nbc=1
+    type: Pi 3B+
+    ram: 1
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-4-gb-ram-wlan-bt-rasp-pi-4-b-4gb-p259920.html?&trstct=pol_12&nbc=1
+    type: Pi 4
+    ram: 4
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-16gb-emmc-rpi-cm4-4gb16gb-p290537.html?&trstct=pol_5&nbc=1
+    type: Pi 4 module 16
+    ram: 4
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-16gb-emmc-wlan-rpi-cm4w-4gb16gb-p290541.html?&trstct=pol_6&nbc=1
+    type: Pi 4 module 16
+    ram: 4
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-32gb-emmc-rpi-cm4-4gb32gb-p290538.html?&trstct=pol_7&nbc=1
+    type: Pi 4 module 32
+    ram: 4
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-32gb-emmc-wlan-rpi-cm4w-4gb32gb-p290542.html?&trstct=pol_8&nbc=1
+    type: Pi 4 module 32
+    ram: 8
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-16gb-emmc-wlan-rpi-cm4w-8gb16gb-p290551.html?&trstct=pol_0&nbc=1
+    type: Pi 4 module 16
+    ram: 8
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-16gb-emmc-rpi-cm4-8gb16gb-p290546.html?&trstct=pol_1&nbc=1
+    type: Pi 4 module 16
+    ram: 8
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-32gb-emmc-wlan-rpi-cm4w-8gb32gb-p290552.html?&trstct=pol_2&nbc=1
+    type: Pi 4 module 32
+    ram: 8
+    shop: reichelt
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-32gb-emmc-rpi-cm4-8gb32gb-p290547.html?&trstct=pol_3&nbc=1
+    type: Pi 4 module 32
+    ram: 8
+    shop: reichelt
+    ## okdo
+  - url: https://www.okdo.com/de/p/raspberry-pi-4-model-b-board-mit-2gb-lpddr4-sdram/
+    type: Pi 4 module 16
+    ram: 2
+    shop: okdo
+  - url: https://www.okdo.com/de/p/raspberry-pi-4-model-b-board-with-4gb-lpddr4-sdram/
+    type: Pi 4 module 16
+    ram: 4
+    shop: okdo
+  - url: https://www.okdo.com/de/p/raspberry-pi-4-model-b-8gb/
+    type: Pi 4 module 32
+    ram: 8
+    shop: okdo
+  - url: https://www.okdo.com/de/p/raspberry-pi-400-german-keyboard-layout-computer-only/
+    type: Pi 400
+    ram: 4
+    shop: okdo
+    ## rappishop
+  - url: https://www.rasppishop.de/Raspberry-Pi-4-Modell-B-1GB-SDRAM
+    type: Pi 4
+    ram: 1
+    shop: rappishop
+  - url: https://www.rasppishop.de/Raspberry-Pi-4-Computer-Modell-B-8GB-SDRAM
+    type: Pi 4
+    ram: 8
+    shop: rappishop
+  - url: https://www.rasppishop.de/Raspberry-Pi-4-Modell-B-2GB-SDRAM
+    type: Pi 4 module 32
+    ram: 2
+    shop: rappishop
+  - url: https://www.rasppishop.de/Raspberry-Pi-4-Modell-B-4GB-SDRAM
+    type: Pi 4
+    ram: 4
+    shop: rappishop
+  - url: https://www.rasppishop.de/Raspberry-Pi-3-Model-B-14-GHz-64Bit-Quad-Core
+    type: Pi 3+
+    ram: 4
+    shop: rappishop
+#Bechtle
+  - url: https://www.bechtle.com/shop/raspberry-pi4-model-b-2gb-einplatinen-pc--4390756--p
+    type: Pi 4
+    ram: 2
+    shop: bechtle
+  - url: https://www.bechtle.com/shop/raspberry-pi4-model-b-4gb-einplatinen-pc--4501967--p
+    type: Pi 4
+    ram: 4
+    shop: bechtle
+  - url: https://www.bechtle.com/shop/raspberry-pi4-model-b-8gb-einplatinen-pc--4463597--p
+    type: Pi 4
+    ram: 8
+    shop: bechtle
+  - url: https://www.bechtle.com/shop/raspberry-pi-400-tastatur-pc--4505747--p
+    type: Pi 400
+    ram: 4
+    shop: bechtle
