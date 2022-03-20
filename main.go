@@ -28,7 +28,10 @@ type AddTask struct {
 }
 
 func main() {
-	godotenv.Load(".env")
+	err := godotenv.Load(".env")
+	if err != nil {
+		fmt.Println("No .env file found")
+	}
 	captcha, _ := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_SECRET"), recaptcha.V3, 10*time.Second) // for v3 API use https://g.co/recaptcha/v3 (apperently the same admin UI at the time of writing)
 	go startScraper()
 
@@ -38,7 +41,7 @@ func main() {
 
 	// Or extend your config for customization
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000, http://localhost:3001, ",
+		AllowOrigins: "http://localhost:3000, http://localhost:3001, " + os.Getenv("HOST_URL"),
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 	app.Static("/", "./frontend/build")
@@ -68,7 +71,7 @@ func main() {
 			})
 		}
 		//check if the task is valid
-		for _, t := range *&addTasks.Tasks {
+		for _, t := range addTasks.Tasks {
 			if t.Recipient.Pushover == "" && t.Recipient.Webhook == "" && t.Recipient.Email == "" || t.Destination > 3 || t.Destination < 1 {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 					"error": true,
@@ -77,7 +80,7 @@ func main() {
 			}
 		}
 		//Add task to alert
-		for _, t := range *&addTasks.Tasks {
+		for _, t := range addTasks.Tasks {
 			alertManager.AddAlert(t.Website.URL, messaging.Task{t.Recipient, t.Destination})
 		}
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
