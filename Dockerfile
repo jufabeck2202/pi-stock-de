@@ -19,7 +19,7 @@ COPY go.mod go.sum ./
 # Set necessary environment variables needed for our image and build the API server.
 RUN go build -ldflags="-s -w" -o pistock .
 
-FROM node:13.12.0-alpine as nodebuilder
+FROM node:17.7.1-alpine as nodebuilder
 
 # set working directory
 WORKDIR /app
