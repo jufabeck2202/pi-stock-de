@@ -27,12 +27,6 @@ type AddTask struct {
 	Capcha string            `json:"captcha"`
 }
 
-func logEnv() {
-	fmt.Println("HOST_URL: " + os.Getenv("HOST_URL"))
-	fmt.Println("RECAPTCHA_SECRET: " + os.Getenv("RECAPTCHA_SECRET"))
-	fmt.Println("REDIS_HOST: " + os.Getenv("REDIS_HOST"))
-	fmt.Println("REDIS_PASSWORD: " + os.Getenv("REDIS_PASSWORD"))
-}
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -156,4 +150,10 @@ func scheduleUpdates(websites []utils.Website) {
 	}
 	fmt.Println("Found websites to update: ", len(tasksToSchedule))
 	messaging.AddToQueue(tasksToSchedule)
+}
+func logEnv() {
+	fmt.Println("HOST_URL: " + os.Getenv("HOST_URL"))
+	fmt.Println("RECAPTCHA_SECRET: " + os.Getenv("RECAPTCHA_SECRET"))
+	fmt.Println("REDIS_HOST: " + os.Getenv("REDIS_HOST"))
+	fmt.Println("REDIS_PASSWORD: " + os.Getenv("REDIS_PASSWORD"))
 }
