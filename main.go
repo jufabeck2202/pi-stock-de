@@ -27,15 +27,18 @@ type AddTask struct {
 	Capcha string            `json:"captcha"`
 }
 
-
+func logEnv() {
+	fmt.Println("HOST_URL: " + os.Getenv("HOST_URL"))
+	fmt.Println("RECAPTCHA_SECRET: " + os.Getenv("RECAPTCHA_SECRET"))
+	fmt.Println("REDIS_HOST: " + os.Getenv("REDIS_HOST"))
+	fmt.Println("REDIS_PASSWORD: " + os.Getenv("REDIS_PASSWORD"))
+}
 func main() {
-
-
 	err := godotenv.Load(".env")
-
 	if err != nil {
-		fmt.Println("No .env file found")
+		fmt.Println("No .env file found", err)
 	}
+	logEnv()
 	captcha, _ := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_SECRET"), recaptcha.V3, 10*time.Second) // for v3 API use https://g.co/recaptcha/v3 (apperently the same admin UI at the time of writing)
 	go startScraper()
 
