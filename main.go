@@ -28,7 +28,10 @@ type AddTask struct {
 }
 
 func main() {
+
+
 	err := godotenv.Load(".env")
+
 	if err != nil {
 		fmt.Println("No .env file found")
 	}
