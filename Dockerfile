@@ -17,7 +17,10 @@ COPY utils/ ./utils
 COPY main.go ./
 COPY go.mod go.sum ./
 # Set necessary environment variables needed for our image and build the API server.
-RUN go build -ldflags="-s -w" -o pistock .
+ARG TARGETOS
+ARG TARGETARCH
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+	go build -ldflags="-s -w" -o pistock .
 
 FROM node:17.7.1-alpine as nodebuilder
 
@@ -36,9 +39,8 @@ RUN npm run build
 
 FROM scratch
 
-# Copy binary and config files from /build to root folder of scratch container.
+# Move Files from build steps into the container
 COPY --from=gobuilder ["/build/pistock", "/"]
 COPY --from=nodebuilder ["/app/build/", "/frontend/build"] 
 COPY website.yaml ./
-# Command to run when starting the container.
 ENTRYPOINT ["/pistock"]
