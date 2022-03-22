@@ -11,7 +11,7 @@ import {
   MantineProvider,
   Text,
 } from "@mantine/core";
-import { Sun, MoonStars } from "tabler-icons-react";
+import { Sun, MoonStars, BrandGithub } from "tabler-icons-react";
 import StartPage from "./startPage/StartPage";
 
 const queryClient = new QueryClient();
@@ -33,20 +33,33 @@ function App() {
               <Header height={60}>
                 <Group sx={{ height: "100%" }} px={20} position="apart">
                   <Text size="xl" weight={800} color="red">
-                    Raspberry Pi stock
+                    Raspberry-Pi Stock
                   </Text>
-
-                  <ActionIcon
-                    variant="default"
-                    onClick={() => toggleColorScheme()}
-                    size={30}
-                  >
-                    {colorScheme === "dark" ? (
-                      <Sun size={16} />
-                    ) : (
-                      <MoonStars size={16} />
-                    )}
-                  </ActionIcon>
+                  <Group>
+                    <ActionIcon
+                      variant="default"
+                      onClick={() =>
+                        window.open(
+                          "https://github.com/jufabeck2202/pi-stock-de",
+                          "_blank"
+                        )
+                      }
+                      size={30}
+                    >
+                      <BrandGithub size={16} />
+                    </ActionIcon>
+                    <ActionIcon
+                      variant="default"
+                      onClick={() => toggleColorScheme()}
+                      size={30}
+                    >
+                      {colorScheme === "dark" ? (
+                        <Sun size={16} />
+                      ) : (
+                        <MoonStars size={16} />
+                      )}
+                    </ActionIcon>
+                  </Group>
                 </Group>
               </Header>
             }
