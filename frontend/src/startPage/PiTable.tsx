@@ -196,7 +196,6 @@ export function PiTable({ data, onModalSubmit }: TableSortProps) {
             <CircleX size={20} strokeWidth={2} color={"red"} />
           )}
         </td>
-        <td>{item.time}</td>
         <td>
           <ActionIcon
             variant="default"
@@ -335,7 +334,6 @@ export function PiTable({ data, onModalSubmit }: TableSortProps) {
               >
                 Stock
               </Th>
-              <th>Updated</th>
               <th>Open</th>
             </tr>
           </thead>
