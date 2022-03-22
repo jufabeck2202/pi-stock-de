@@ -37,7 +37,7 @@ COPY frontend/public ./public
 
 RUN npm run build
 
-FROM scratch
+FROM alpine:latest
 
 # Move Files from build steps into the container
 COPY --from=gobuilder ["/build/pistock", "/"]
