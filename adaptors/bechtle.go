@@ -1,7 +1,6 @@
 package adaptors
 
 import (
-	"fmt"
 	"regexp"
 	"time"
 
@@ -27,9 +26,9 @@ func (b *Bechtle) Run(list utils.Websites) {
 	b.c.URLFilters = []*regexp.Regexp{
 		regexp.MustCompile("^https://www.bechtle.com/"),
 	}
-	b.c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting Bechtle ", r.URL.String())
-	})
+	// b.c.OnRequest(func(r *colly.Request) {
+	// 	fmt.Println("Visiting Bechtle ", r.URL.String())
+	// })
 
 	b.c.OnHTML(".organism.conversion-box.js-conversion-box.js-pds-conversion-box", func(e *colly.HTMLElement) {
 		item := list.GetItemById(e.Request.URL.String())

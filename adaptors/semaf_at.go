@@ -1,7 +1,6 @@
 package adaptors
 
 import (
-	"fmt"
 	"regexp"
 	"time"
 
@@ -27,9 +26,9 @@ func (s *Semaf) Run(list utils.Websites) {
 	s.c.URLFilters = []*regexp.Regexp{
 		regexp.MustCompile("^https://electronics.semaf.at/"),
 	}
-	s.c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting Semaf: ", r.URL.String())
-	})
+	// s.c.OnRequest(func(r *colly.Request) {
+	// 	fmt.Println("Visiting Semaf: ", r.URL.String())
+	// })
 
 	s.c.OnHTML(".product-offer", func(e *colly.HTMLElement) {
 		item := list.GetItemById(e.Request.URL.String())

@@ -1,7 +1,6 @@
 package adaptors
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -27,9 +26,9 @@ func (s *BuyZero) Run(list utils.Websites) {
 	s.c.URLFilters = []*regexp.Regexp{
 		regexp.MustCompile("^https://buyzero.de/"),
 	}
-	s.c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting Buyzero: ", r.URL.String())
-	})
+	// s.c.OnRequest(func(r *colly.Request) {
+	// 	fmt.Println("Visiting Buyzero: ", r.URL.String())
+	// })
 
 	s.c.OnHTML(".product-meta__title.heading.h1", func(e *colly.HTMLElement) {
 		item := list.GetItemById(e.Request.URL.String())

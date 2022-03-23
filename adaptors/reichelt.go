@@ -1,7 +1,6 @@
 package adaptors
 
 import (
-	"fmt"
 	"regexp"
 	"time"
 
@@ -27,14 +26,14 @@ func (b *Reichelt) Run(list utils.Websites) {
 	b.c.URLFilters = []*regexp.Regexp{
 		regexp.MustCompile("^https://www.reichelt.de/"),
 	}
-	b.c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting Reichelt ", r.URL.String())
-	})
+	// b.c.OnRequest(func(r *colly.Request) {
+	// 	fmt.Println("Visiting Reichelt ", r.URL.String())
+	// })
 
 	b.c.OnHTML("#article", func(e *colly.HTMLElement) {
 		item := list.GetItemById(e.Request.URL.String())
 		item.Name = e.ChildText("#av_articleheader")
-		item.InStock = !(e.ChildText(".availability") == "z.Zt. ausverkauft") 
+		item.InStock = !(e.ChildText(".availability") == "z.Zt. ausverkauft")
 		item.PriceString = e.ChildText("#av_price") + " €"
 		item.Time = time.Now().Format("15:04:05")
 		list.UpdateItemInList(item)

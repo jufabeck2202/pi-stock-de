@@ -11,16 +11,17 @@ import (
 )
 
 type Website struct {
-	Id          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	Shop        string    `json:"shop"`
-	URL         string    `json:"url"`
-	Type        string    `json:"type"`
-	Ram         int       `json:"ram"`
-	InStock     bool      `json:"in_stock"`
-	PriceString string    `json:"price_string"`
-	StockNumer  int       `json:"stock_number"`
-	Time        string    `json:"time"`
+	Id            uuid.UUID `json:"id"`
+	Name          string    `json:"name"`
+	Shop          string    `json:"shop"`
+	URL           string    `json:"url"`
+	Type          string    `json:"type"`
+	Ram           int       `json:"ram"`
+	InStock       bool      `json:"in_stock"`
+	PriceString   string    `json:"price_string"`
+	StockNumer    int       `json:"stock_number"`
+	Time          string    `json:"time"`
+	UpdateCounter int       `json:"update_counter"`
 }
 
 type Scrape struct {
@@ -75,6 +76,7 @@ func (p *Websites) Save() {
 func (p Websites) UpdateItemInList(item Website) {
 	for i, v := range p.list {
 		if v.URL == item.URL {
+			item.UpdateCounter = v.UpdateCounter + 1
 			p.list[i] = item
 		}
 	}

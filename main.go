@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -30,7 +31,7 @@ func main() {
 	fmt.Println(time.Now())
 	err := godotenv.Load(".env")
 	if err != nil {
-		fmt.Println("No .env file found", err)
+		log.Println("No .env file found", err)
 	}
 	logEnv()
 	captcha, _ := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_SECRET"), recaptcha.V3, 10*time.Second) // for v3 API use https://g.co/recaptcha/v3 (apperently the same admin UI at the time of writing)
@@ -129,7 +130,7 @@ func searchPi(firstRun bool) {
 		if len(changes) > 0 {
 			scheduleUpdates(changes)
 		}
-		fmt.Println("no changes")
+		log.Println("no changes")
 	}
 	websites.Save()
 }
@@ -138,18 +139,20 @@ func scheduleUpdates(websites []utils.Website) {
 	tasksToSchedule := []types.AlertTask{}
 
 	for _, w := range websites {
+		log.Printf("%s changed", w.URL)
 		alert := alertManager.LoadAlerts(w.URL)
 		for _, t := range alert {
 			tasksToSchedule = append(tasksToSchedule, types.AlertTask{w, t.Recipient, t.Destination})
-			fmt.Println("scheduling update for ", w.URL)
+			log.Println("scheduling update for ", w.URL)
+			log.Println(t.Recipient)
 		}
 	}
-	fmt.Println("Found websites to update: ", len(tasksToSchedule))
+	log.Println("Found websites to update: ", len(tasksToSchedule))
 	messaging.AddToQueue(tasksToSchedule)
 }
 func logEnv() {
-	fmt.Println("HOST_URL: " + os.Getenv("HOST_URL"))
-	fmt.Println("RECAPTCHA_SECRET: " + os.Getenv("RECAPTCHA_SECRET"))
-	fmt.Println("REDIS_HOST: " + os.Getenv("REDIS_HOST"))
-	fmt.Println("REDIS_PASSWORD: " + os.Getenv("REDIS_PASSWORD"))
+	log.Println("HOST_URL: " + os.Getenv("HOST_URL"))
+	log.Println("RECAPTCHA_SECRET: " + os.Getenv("RECAPTCHA_SECRET"))
+	log.Println("REDIS_HOST: " + os.Getenv("REDIS_HOST"))
+	log.Println("REDIS_PASSWORD: " + os.Getenv("REDIS_PASSWORD"))
 }

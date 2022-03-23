@@ -1,7 +1,6 @@
 package adaptors
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -28,9 +27,9 @@ func (b *Funk24) Run(list utils.Websites) {
 	b.c.URLFilters = []*regexp.Regexp{
 		regexp.MustCompile("^https://shop.funk24.net/"),
 	}
-	b.c.OnRequest(func(r *colly.Request) {
-		fmt.Println("funk24", r.URL.String())
-	})
+	// b.c.OnRequest(func(r *colly.Request) {
+	// 	fmt.Println("funk24", r.URL.String())
+	// })
 
 	b.c.OnHTML(".content-main--inner", func(e *colly.HTMLElement) {
 		item := list.GetItemById(e.Request.URL.String())

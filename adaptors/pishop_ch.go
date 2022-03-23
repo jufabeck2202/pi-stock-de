@@ -1,7 +1,6 @@
 package adaptors
 
 import (
-	"fmt"
 	"regexp"
 	"time"
 
@@ -27,9 +26,9 @@ func (b *Pishop) Run(list utils.Websites) {
 	b.c.URLFilters = []*regexp.Regexp{
 		regexp.MustCompile("^https://www.pi-shop.ch/"),
 	}
-	b.c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting Pishop ", r.URL.String())
-	})
+	// b.c.OnRequest(func(r *colly.Request) {
+	// 	fmt.Println("Visiting Pishop ", r.URL.String())
+	// })
 
 	b.c.OnHTML(".product-primary-column.product-shop", func(e *colly.HTMLElement) {
 		item := list.GetItemById(e.Request.URL.String())
