@@ -135,8 +135,8 @@ export function PiTable({ data, onModalSubmit }: TableSortProps) {
   const [selection, setSelection] = useState<String[]>([]);
   const [search, setSearch] = useState("");
   const [sortedData, setSortedData] = useState(data);
-  const [sortBy, setSortBy] = useState<keyof Website>("type");
-  const [reverseSortDirection, setReverseSortDirection] = useState(false);
+  const [sortBy, setSortBy] = useState<keyof Website>("in_stock");
+  const [reverseSortDirection, setReverseSortDirection] = useState(true);
 
   const setSorting = (field: keyof Website) => {
     const reversed = field === sortBy ? !reverseSortDirection : false;
