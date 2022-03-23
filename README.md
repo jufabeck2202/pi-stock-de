@@ -1,4 +1,4 @@
-# PI-STOCK-DE
+# Pi-Stock DE
 > Monitor and get notified if raspberry pis are available in german stores
 
 ## Monitored Stores
