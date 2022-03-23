@@ -118,7 +118,7 @@ websites:
     type: Pi 4
     ram: 4
     shop: welectron
-  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-8-GB-RAM
+  - url: https://www.welectron.com/Raspberry-Pi-4-8-GB-Board
     type: Pi 4
     ram: 8
     shop: welectron
