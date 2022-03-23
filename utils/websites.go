@@ -3,6 +3,7 @@ package utils
 import (
 	"log"
 	"os"
+	"sync"
 
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v2"
@@ -73,12 +74,16 @@ func (p *Websites) Save() {
 	}
 }
 
+var mutex = &sync.Mutex{}
+
 func (p Websites) UpdateItemInList(item Website) {
 	for i, v := range p.list {
+		mutex.Lock()
 		if v.URL == item.URL {
 			item.UpdateCounter = v.UpdateCounter + 1
 			p.list[i] = item
 		}
+		mutex.Unlock()
 	}
 }
 

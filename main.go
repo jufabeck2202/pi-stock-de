@@ -109,10 +109,10 @@ func startScraper() {
 	c.Start()
 }
 func searchPi(firstRun bool) {
+	log.Println("Searching for Pi")
 	adaptorsList := make([]adaptors.Adaptor, 0)
 	websites.Load()
 	c := colly.NewCollector(
-		colly.CacheDir("./cache"),
 		colly.Async(true),
 	)
 	//
