@@ -13,6 +13,7 @@ import {
 } from "@mantine/core";
 import { Sun, MoonStars, BrandGithub } from "tabler-icons-react";
 import StartPage from "./startPage/StartPage";
+import { Logo } from "./Logo";
 
 const queryClient = new QueryClient();
 function App() {
@@ -32,9 +33,12 @@ function App() {
             header={
               <Header height={60}>
                 <Group sx={{ height: "100%" }} px={20} position="apart">
-                  <Text size="xl" weight={800} color="red">
-                    Raspberry-Pi Stock
-                  </Text>
+                  <Group>
+                    <Logo />
+                    <Text size="xl" weight={800} color="red">
+                      Raspberry-Pi Stock
+                    </Text>
+                  </Group>
                   <Group>
                     <ActionIcon
                       variant="default"
