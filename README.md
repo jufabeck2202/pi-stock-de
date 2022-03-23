@@ -18,6 +18,14 @@
 - Email
 - Pushover
 
+## Planned Features:
+- [ ] Delete-Route to enable users to unsubscribe from Notifications
+- [ ] New Custom Fav-Icon
+- [ ] Add more notification Services
+  - [ ] Web-Push-Notifications
+- [x] Protect Create-Notification Route with Captcha
+
+
 ## Installation
 The easiest way to use PI-STOCK is using the Docker Image 
 
@@ -41,5 +49,5 @@ To develop the frontend live, you need to change the cors settings for the go-fi
 ## Add new Shop
 To add a new shop, you can simply create a new adaptors inside the `adaptors` folder.
 
-Add the shop-pages to monitor tho the `websites.yaml` file, and initalize the adaptor inside the `main.go` file.
+Add the Shop URLs to monitor to the `websites.yaml` file, and initalize the adaptor inside the `main.go` file.
 
