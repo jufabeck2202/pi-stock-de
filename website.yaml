@@ -39,6 +39,18 @@ websites:
     type: Pi 4 module 32
     ram: 8
     shop: berrybase
+  - url: https://www.berrybase.de/neu/raspberry-pi-4-computer-modell-b-4gb-ram-light-starter-kit-wei-223?c=2383
+    type: Pi 4 
+    ram: 4
+    shop: berrybase
+  - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/kits/raspberry-pi-4-computer-modell-b-8gb-ram-full-armor-kit?c=2383
+    type: Pi 4 
+    ram: 8
+    shop: berrybase
+  - url: https://www.berrybase.de/neu/raspberry-pi-4-computer-modell-b-4gb-light-starter-set?c=2383
+    type: Pi 4 
+    ram: 4
+    shop: berrybase
   - url: https://electronics.semaf.at/Raspberry-Pi-4-B-4x-15GHz-CPU-4GB-RAM-Bluetooth-5-WLAN
     type: Pi 4
     ram: 4
