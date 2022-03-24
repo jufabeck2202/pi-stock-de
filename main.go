@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gocolly/colly"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -40,7 +41,9 @@ func main() {
 	go messaging.Init()
 
 	app := fiber.New()
-
+	prometheus := fiberprometheus.New("pi-stock-de")
+	prometheus.RegisterAt(app, "/metrics")
+	app.Use(prometheus.Middleware)
 	// Or extend your config for customization
 	app.Static("/", "./frontend/build")
 
