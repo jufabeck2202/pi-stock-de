@@ -20,11 +20,10 @@
 
 ## Planned Features:
 - [ ] Delete-Route to enable users to unsubscribe from Notifications
-- [ ] New Custom Fav-Icon
 - [ ] Add more notification Services
   - [ ] Web-Push-Notifications
 - [x] Protect Create-Notification Route with Captcha
-
+- [x] New Custom Fav-Icon
 
 ## Installation
 The easiest way to use PI-STOCK is using the Docker Image 
