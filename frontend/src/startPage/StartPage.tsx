@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from "react-query";
 import { PiTable } from "./PiTable";
 import { AlertType } from "./AlertForm";
+import { useNotifications } from "@mantine/notifications";
+import { Check } from "tabler-icons-react";
 
 export type Website = {
   id: string;
@@ -31,6 +33,12 @@ type AddTasks = {
   captcha: string;
 };
 
+type DeleteTask = {
+  destination: number;
+  recipient: Recipient;
+  captcha: string;
+};
+
 const createTasks = async (data: AddTasks) => {
   const response = await fetch("/api/v1/alert", {
     method: "POST",
@@ -45,15 +53,58 @@ const createTasks = async (data: AddTasks) => {
   throw new Error("Error Creating Tasks");
 };
 
+const deleteTasks = async (data: DeleteTask): Promise<number> => {
+  const response = await fetch("/api/v1/alert", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) {
+    return response.json();
+  }
+  throw new Error("Error Deleting Tasks");
+};
+
 function StartPage() {
-  const { mutate } = useMutation(createTasks);
+  const { mutate: addNotifcations } = useMutation(createTasks, {
+    onSuccess: async (data, input) => {
+      notifications.showNotification({
+        title: "Successfully Subscribed",
+        message: `You have successfully subscribed to ${input.tasks.length} websites`,
+        color: "green",
+        icon: <Check />,
+      });
+    },
+  });
+  const { mutate: deleteNotifications } = useMutation(deleteTasks, {
+    onSuccess: async (data) => {
+      console.log(data);
+      notifications.showNotification({
+        title: "Successfully disabled all Notification",
+        message: `Notifications for ${data} Item's removed `,
+        color: "green",
+        icon: <Check />,
+      });
+    },
+    onError: async (error) => {
+      notifications.showNotification({
+        title: "Error disabeling Notifications",
+        message: `Error: ${error}`,
+        color: "green",
+        icon: <Check />,
+      });
+    },
+  });
+  const notifications = useNotifications();
   const { isLoading, error, data } = useQuery<Website[]>(
     "status",
     () =>
       fetch("/api/v1/status").then((res) => res.json()),
     {
       refetchOnWindowFocus: true,
-      refetchInterval: 1000,
+      refetchInterval: 10000,
       refetchOnMount: true,
       refetchOnReconnect: true,
       cacheTime: 5,
@@ -65,6 +116,7 @@ function StartPage() {
   if (error) {
     return <div>Error: {error} </div>;
   }
+
   const onModalSubmit = (
     websites: Website[],
     token: string,
@@ -80,9 +132,35 @@ function StartPage() {
         email: value === AlertType.mail ? token : "",
       },
     }));
-    mutate({ tasks: tasks, captcha });
+    addNotifcations({ tasks: tasks, captcha });
   };
-  return <>{data && <PiTable data={data} onModalSubmit={onModalSubmit} />}</>;
+
+  const onModalDelete = (token: string, value: AlertType, captcha: string) => {
+    const deleteTask: DeleteTask = {
+      destination: Number(value),
+      recipient: {
+        webhook: value === AlertType.webhook ? token : "",
+        pushover: value === AlertType.pushover ? token : "",
+        email: value === AlertType.mail ? token : "",
+      },
+      captcha,
+    };
+    try {
+      deleteNotifications(deleteTask);
+    } catch (error) {}
+  };
+
+  return (
+    <>
+      {data && (
+        <PiTable
+          data={data}
+          onModalSubmit={onModalSubmit}
+          onRemoveModalSubmit={onModalDelete}
+        />
+      )}
+    </>
+  );
 }
 
 export default StartPage;

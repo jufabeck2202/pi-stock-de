@@ -9,6 +9,7 @@ import (
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gocolly/colly"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 	"gopkg.in/ezzarghili/recaptcha-go.v4"
@@ -27,6 +28,11 @@ type AddTask struct {
 	Tasks  []types.AlertTask `json:"tasks"`
 	Capcha string            `json:"captcha"`
 }
+type DeleteTask struct {
+	Recipient   types.Recipient `json:"recipient"`
+	Destination types.Platform  `json:"destination"`
+	Capcha      string          `json:"captcha"`
+}
 
 func main() {
 	fmt.Println(time.Now())
@@ -41,6 +47,16 @@ func main() {
 	go messaging.Init()
 
 	app := fiber.New()
+
+	// Default config
+	app.Use(cors.New())
+
+	// Or extend your config for customization
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
 	prometheus := fiberprometheus.New("pi-stock-de")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
@@ -90,16 +106,36 @@ func main() {
 		})
 	})
 
-	app.Delete("/api/v1/alert", func(c *fiber.Ctx) error {
+	app.Delete("/api/v1/alert/", func(c *fiber.Ctx) error {
+		deleteTask := &DeleteTask{}
 
-		return c.JSON(websites.GetList())
+		// Check, if received JSON data is valid.
+		if err := c.BodyParser(deleteTask); err != nil {
+			// Return status 400 and error message.
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": true,
+				"msg":   err.Error(),
+			})
+		}
+		err := captcha.Verify(deleteTask.Capcha)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": true,
+				"msg":   err.Error(),
+			})
+		}
+		//check if the task is valid
+		if deleteTask.Recipient.Pushover == "" && deleteTask.Recipient.Webhook == "" && deleteTask.Recipient.Email == "" || deleteTask.Destination > 3 || deleteTask.Destination < 1 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": true,
+				"msg":   "invalid task structure",
+			})
+		}
+		numberOfDeletedNotifications := alertManager.DeleteTask(websites.GetAllUrls(), deleteTask.Recipient, deleteTask.Destination)
+		return c.JSON(numberOfDeletedNotifications)
 	})
 
 	app.Listen(":3001")
-}
-
-func mainPage(c *fiber.Ctx) error {
-	return c.Render("mainpage", fiber.Map{})
 }
 
 func startScraper() {

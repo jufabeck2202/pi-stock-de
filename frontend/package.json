@@ -7,7 +7,7 @@
     "@mantine/form": "^4.0.5",
     "@mantine/hooks": "^4.0.3",
     "@mantine/next": "^4.0.3",
-    "@mantine/notifications": "^4.0.3",
+    "@mantine/notifications": "^4.0.8",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",

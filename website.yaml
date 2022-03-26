@@ -94,7 +94,7 @@ websites:
     ram: 4
     shop: elv
   - url: https://de.elv.com/raspberry-pi-3-modell-b-1-gb-123499
-    type: Pi 3
+    type: Pi 3B
     ram: 1
     shop: elv
   - url: https://de.elv.com/raspberry-pi-4-model-b-2gb-ram-250569?fs=2890915308&c=590
@@ -152,7 +152,7 @@ websites:
     ram: 8
     shop: pishopch
   - url: https://www.pi-shop.ch/raspberry-pi-3-model-b
-    type: Pi 3
+    type: Pi 3B
     ram: 1
     shop: pishopch
     ##funk24
@@ -288,7 +288,7 @@ websites:
     ram: 4
     shop: rappishop
   - url: https://www.rasppishop.de/Raspberry-Pi-3-Model-B-14-GHz-64Bit-Quad-Core
-    type: Pi 3+
+    type: Pi 3B+
     ram: 4
     shop: rappishop
 #Bechtle

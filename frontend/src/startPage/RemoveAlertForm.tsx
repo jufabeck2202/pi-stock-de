@@ -16,12 +16,12 @@ export enum AlertType {
   webhook = "3",
 }
 
-type AlertFormProps = {
+type RemoveAlertFormProps = {
   onSubmit: (token: string, value: AlertType, captcha: string) => void;
   onClose: () => void;
 };
 
-function AlertForm({ onSubmit }: AlertFormProps) {
+function RemoveAlertForm({ onSubmit }: RemoveAlertFormProps) {
   const [value, setValue] = useState(AlertType.pushover);
   const [captcha, setCaptcha] = useState("");
 
@@ -88,7 +88,7 @@ function AlertForm({ onSubmit }: AlertFormProps) {
             />
             <Group position="right" mt="md">
               <Button type="submit" disabled={captcha === ""}>
-                Save
+                Remove
               </Button>
             </Group>
           </form>
@@ -108,7 +108,7 @@ function AlertForm({ onSubmit }: AlertFormProps) {
             />
             <Group position="right" mt="md">
               <Button type="submit" disabled={captcha === ""}>
-                Save
+                Remove
               </Button>
             </Group>
           </form>
@@ -132,7 +132,7 @@ function AlertForm({ onSubmit }: AlertFormProps) {
             </InputWrapper>
             <Group position="right" mt="md">
               <Button type="submit" disabled={captcha === ""}>
-                Save
+                Remove
               </Button>
             </Group>
           </form>
@@ -145,7 +145,7 @@ function AlertForm({ onSubmit }: AlertFormProps) {
   return (
     <Box sx={{ maxWidth: 340 }} mx="auto">
       <Select
-        label="Select how you want to be notified when the selected items are in stock again:"
+        label="Enter your Token/Email/URL to no longer get notified:"
         placeholder="Pick one"
         onChange={(value) => setValue(value as AlertType)}
         value={value}
@@ -167,4 +167,4 @@ function AlertForm({ onSubmit }: AlertFormProps) {
     </Box>
   );
 }
-export default AlertForm;
+export default RemoveAlertForm;

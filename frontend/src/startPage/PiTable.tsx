@@ -12,8 +12,8 @@ import {
   ActionIcon,
   Container,
   Modal,
-  Button,
   CloseButton,
+  Select,
 } from "@mantine/core";
 import {
   Selector,
@@ -23,10 +23,13 @@ import {
   ExternalLink,
   Check,
   CircleX,
-  Notification,
+  BellPlus,
+  BellOff,
 } from "tabler-icons-react";
 import { Website } from "./StartPage";
 import AlertForm, { AlertType } from "./AlertForm";
+import RemoveAlertForm from "./RemoveAlertForm";
+import { type } from "os";
 
 const useStyles = createStyles((theme) => ({
   th: {
@@ -63,6 +66,11 @@ interface TableSortProps {
   data: Website[];
   onModalSubmit: (
     websites: Website[],
+    token: string,
+    value: AlertType,
+    captcha: string
+  ) => void;
+  onRemoveModalSubmit: (
     token: string,
     value: AlertType,
     captcha: string
@@ -105,6 +113,36 @@ function filterData(data: Website[], search: string) {
     })
   );
 }
+enum PiTypes {
+  NOTHING = "",
+  PI4 = "Pi 4",
+  PI400 = "Pi 400",
+  PI48 = "Pi 4;8",
+  PI44 = "Pi 4;4",
+  PI42 = "Pi 4;2",
+  PI41 = "Pi 4;1",
+  PI4Module = "Pi 4 module",
+  PI3 = "Pi 3",
+}
+
+function filterDataForType(data: Website[], type: PiTypes) {
+  if (type === PiTypes.NOTHING) {
+    return data;
+  }
+  if (type === PiTypes.PI4Module) {
+    return data.filter((item) => item.type.startsWith(type));
+  }
+  if (type === PiTypes.PI3) {
+    return data.filter((item) => item.type.startsWith(type));
+  }
+  if (type.split(";").length === 2) {
+    const [piType, ram] = type.split(";");
+    return data.filter(
+      (item) => item.type === piType && Number(item.ram) === Number(ram)
+    );
+  }
+  return data.filter((item) => item.type === type);
+}
 
 function sortData(
   data: Website[],
@@ -128,16 +166,29 @@ function sortData(
   );
 }
 
-export function PiTable({ data, onModalSubmit }: TableSortProps) {
+function setFilterData(data: Website[], type?: PiTypes) {
+  if (!type) {
+    return data;
+  }
+
+  return filterDataForType(data, type);
+}
+
+export function PiTable({
+  data,
+  onModalSubmit,
+  onRemoveModalSubmit,
+}: TableSortProps) {
   const [showSelect, setShowSelect] = useState(false);
-  const [opened, setOpened] = useState(false);
+  const [alertIsOpen, setAlertIsOpen] = useState(false);
+  const [removeAlertIsOpen, setRemoveAlertIsOpen] = useState(false);
   const { classes, cx } = useStyles();
   const [selection, setSelection] = useState<String[]>([]);
   const [search, setSearch] = useState("");
   const [sortedData, setSortedData] = useState(data);
   const [sortBy, setSortBy] = useState<keyof Website>("in_stock");
   const [reverseSortDirection, setReverseSortDirection] = useState(true);
-
+  const [filter, setFilter] = useState<PiTypes>();
   const setSorting = (field: keyof Website) => {
     const reversed = field === sortBy ? !reverseSortDirection : false;
     setReverseSortDirection(reversed);
@@ -147,9 +198,12 @@ export function PiTable({ data, onModalSubmit }: TableSortProps) {
 
   useEffect(() => {
     setSortedData(
-      sortData(data, { sortBy, reversed: reverseSortDirection, search })
+      setFilterData(
+        sortData(data, { sortBy, reversed: reverseSortDirection, search }),
+        filter
+      )
     );
-  }, [data, sortBy, reverseSortDirection, search]);
+  }, [data, sortBy, reverseSortDirection, search, filter]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
@@ -158,6 +212,17 @@ export function PiTable({ data, onModalSubmit }: TableSortProps) {
       sortData(data, { sortBy, reversed: reverseSortDirection, search: value })
     );
   };
+
+  const handleSelectFilter = (type: PiTypes) => {
+    setFilter(type);
+    setSortedData(
+      setFilterData(
+        sortData(data, { sortBy, reversed: reverseSortDirection, search }),
+        type
+      )
+    );
+  };
+
   const toggleRow = (id: string) =>
     setSelection((current) =>
       current.includes(id)
@@ -213,9 +278,9 @@ export function PiTable({ data, onModalSubmit }: TableSortProps) {
     <Container size="xl">
       <Modal
         centered
-        opened={opened}
-        onClose={() => setOpened(false)}
-        title="Get Notified When a Pi is in Stock"
+        opened={alertIsOpen}
+        onClose={() => setAlertIsOpen(false)}
+        title="Enable Notifications"
       >
         <AlertForm
           onSubmit={(token, value, captcha) => {
@@ -226,8 +291,22 @@ export function PiTable({ data, onModalSubmit }: TableSortProps) {
               captcha
             );
             setSelection([]);
-            setOpened(false);
+            setAlertIsOpen(false);
             setShowSelect(false);
+          }}
+          onClose={function (): void {}}
+        />
+      </Modal>
+      <Modal
+        centered
+        opened={removeAlertIsOpen}
+        onClose={() => setRemoveAlertIsOpen(false)}
+        title="Disable Notifications"
+      >
+        <RemoveAlertForm
+          onSubmit={(token, value, captcha) => {
+            onRemoveModalSubmit(token, value, captcha);
+            setRemoveAlertIsOpen(false);
           }}
           onClose={function (): void {}}
         />
@@ -240,7 +319,7 @@ export function PiTable({ data, onModalSubmit }: TableSortProps) {
                 color="green"
                 variant="filled"
                 disabled={selection.length === 0}
-                onClick={() => setOpened(true)}
+                onClick={() => setAlertIsOpen(true)}
               >
                 <Check />
               </ActionIcon>
@@ -255,13 +334,37 @@ export function PiTable({ data, onModalSubmit }: TableSortProps) {
             </Group>
           ) : (
             <Group>
-              <Button
-                leftIcon={<Notification />}
+              <ActionIcon
                 color="green"
+                variant="filled"
+                size={35}
                 onClick={() => setShowSelect(true)}
               >
-                Add Notification
-              </Button>
+                <BellPlus />
+              </ActionIcon>
+              <ActionIcon
+                color="red"
+                variant="filled"
+                size={35}
+                onClick={() => setRemoveAlertIsOpen(true)}
+              >
+                <BellOff />
+              </ActionIcon>
+
+              <Select
+                onChange={(type) => handleSelectFilter(type as PiTypes)}
+                value={filter}
+                data={[
+                  { value: PiTypes.NOTHING, label: "No Filter" },
+                  { value: PiTypes.PI4, label: "Pi 4" },
+                  { value: PiTypes.PI48, label: "Pi 4, 8GB" },
+                  { value: PiTypes.PI44, label: "Pi 4, 4GB" },
+                  { value: PiTypes.PI42, label: "Pi 4, 2GB" },
+                  { value: PiTypes.PI41, label: "Pi 4, 1GB" },
+                  { value: PiTypes.PI400, label: "Pi 400" },
+                  { value: PiTypes.PI4Module, label: "Pi 4 module" },
+                ]}
+              />
             </Group>
           )}
           <TextInput

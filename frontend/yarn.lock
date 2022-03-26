@@ -1469,12 +1469,12 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@mantine/core@^4.0.3", "@mantine/core@4.0.5":
-  "integrity" "sha512-nOifWPpJpkqLJ0jS7iQmZl5Ij6wpX48P0g9O/wqkC1uh20G3MnD3tbtOOXhOOCTP8mBJrsrflUWnqXd42MWThw=="
-  "resolved" "https://registry.npmjs.org/@mantine/core/-/core-4.0.5.tgz"
-  "version" "4.0.5"
+"@mantine/core@^4.0.3", "@mantine/core@4.0.8":
+  "integrity" "sha512-AjiTWYn4MvFIvPZeaEg8yWNicaE8Qus0Sqmpj/wFsuTcd2pDz/duZqqt6476q6uNRU7Satoog5QpI9FpT/FPXg=="
+  "resolved" "https://registry.npmjs.org/@mantine/core/-/core-4.0.8.tgz"
+  "version" "4.0.8"
   dependencies:
-    "@mantine/styles" "4.0.5"
+    "@mantine/styles" "4.0.8"
     "@popperjs/core" "^2.9.3"
     "@radix-ui/react-scroll-area" "^0.1.1"
     "clsx" "^1.1.1"
@@ -1486,10 +1486,10 @@
   "resolved" "https://registry.npmjs.org/@mantine/form/-/form-4.0.5.tgz"
   "version" "4.0.5"
 
-"@mantine/hooks@^4.0.3", "@mantine/hooks@4.0.5":
-  "integrity" "sha512-MavTo79XP7g4nj5pziXJx5wL2jUfETU6LNepliCAdNcZV4m7m+RKdBLUMbvRfwlMnbLBJFNAZfQ9anPh2ypjgw=="
-  "resolved" "https://registry.npmjs.org/@mantine/hooks/-/hooks-4.0.5.tgz"
-  "version" "4.0.5"
+"@mantine/hooks@^4.0.3", "@mantine/hooks@4.0.8":
+  "integrity" "sha512-f9DNbLB0KjVdTGxVeas/+9fNSiniv//Pm3SAm7NtaeCNX1EU3WECnjph+bnQx0YVwINCRVlLbyWwpkI64m132w=="
+  "resolved" "https://registry.npmjs.org/@mantine/hooks/-/hooks-4.0.8.tgz"
+  "version" "4.0.8"
 
 "@mantine/next@^4.0.3":
   "integrity" "sha512-NpwEU1HpOmSrt8mLsINYi3mWoiA037Wblvro+SPxYu8YvgOm1Re/TdTWbm1ztyTIOCJLvqarwAiEC1/p4OsYKw=="
@@ -1498,10 +1498,10 @@
   dependencies:
     "@mantine/ssr" "4.0.5"
 
-"@mantine/notifications@^4.0.3":
-  "integrity" "sha512-Jq9XElev4pFCtlRehviRsgl8JpRUZ2mNmdvIwXOr4aejGfpWXz2GsfJLDjfgqgpBm6Oc5iUOPt9ZZZAO+9RrwA=="
-  "resolved" "https://registry.npmjs.org/@mantine/notifications/-/notifications-4.0.5.tgz"
-  "version" "4.0.5"
+"@mantine/notifications@^4.0.8":
+  "integrity" "sha512-b23+cvn69AZMZZ5WUBxq4X6SioqmL1y2XG7rtX0cQYiYzlInHiswoeERaEFnaF/hlVr6bIfAiLG8ExIPJIPWoA=="
+  "resolved" "https://registry.npmjs.org/@mantine/notifications/-/notifications-4.0.8.tgz"
+  "version" "4.0.8"
   dependencies:
     "clsx" "^1.1.1"
     "react-transition-group" "^4.4.2"
@@ -1524,6 +1524,18 @@
   "integrity" "sha512-LirUKG+Sv83pTT+9fUGy1QQD2ib4XOz7gDshxZcTNxled92fwwHsvZ/7+ZHLbi54jw2l5QGgXUjPeMZcjqmzBg=="
   "resolved" "https://registry.npmjs.org/@mantine/styles/-/styles-4.0.5.tgz"
   "version" "4.0.5"
+  dependencies:
+    "@emotion/cache" "^11.7.1"
+    "@emotion/react" "^11.7.1"
+    "@emotion/serialize" "^1.0.2"
+    "@emotion/utils" "^1.0.0"
+    "clsx" "^1.1.1"
+    "csstype" "^3.0.9"
+
+"@mantine/styles@4.0.8":
+  "integrity" "sha512-DRS7F/GZmXEwhv3QwZDSFSA+/bK2Q8ohIrw/oroCY6yKkniFLwOIngTnhm9njrNYmfOz5r02VTppH4577yWvaQ=="
+  "resolved" "https://registry.npmjs.org/@mantine/styles/-/styles-4.0.8.tgz"
+  "version" "4.0.8"
   dependencies:
     "@emotion/cache" "^11.7.1"
     "@emotion/react" "^11.7.1"

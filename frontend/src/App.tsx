@@ -14,6 +14,7 @@ import {
 import { Sun, MoonStars, BrandGithub } from "tabler-icons-react";
 import StartPage from "./startPage/StartPage";
 import { Logo } from "./Logo";
+import { NotificationsProvider } from "@mantine/notifications";
 
 const queryClient = new QueryClient();
 function App() {
@@ -27,59 +28,61 @@ function App() {
       toggleColorScheme={toggleColorScheme}
     >
       <MantineProvider theme={{ colorScheme }}>
-        <QueryClientProvider client={queryClient}>
-          <AppShell
-            padding="md"
-            header={
-              <Header height={60}>
-                <Group sx={{ height: "100%" }} px={20} position="apart">
-                  <Group>
-                    <Logo />
-                    <Text size="xl" weight={800} color="red">
-                      Raspberry-Pi Stock
-                    </Text>
+        <NotificationsProvider>
+          <QueryClientProvider client={queryClient}>
+            <AppShell
+              padding="md"
+              header={
+                <Header height={60}>
+                  <Group sx={{ height: "100%" }} px={20} position="apart">
+                    <Group>
+                      <Logo />
+                      <Text size="xl" weight={800} color="red">
+                        Raspberry-Pi Stock
+                      </Text>
+                    </Group>
+                    <Group>
+                      <ActionIcon
+                        variant="default"
+                        onClick={() =>
+                          window.open(
+                            "https://github.com/jufabeck2202/pi-stock-de",
+                            "_blank"
+                          )
+                        }
+                        size={30}
+                      >
+                        <BrandGithub size={16} />
+                      </ActionIcon>
+                      <ActionIcon
+                        variant="default"
+                        onClick={() => toggleColorScheme()}
+                        size={30}
+                      >
+                        {colorScheme === "dark" ? (
+                          <Sun size={16} />
+                        ) : (
+                          <MoonStars size={16} />
+                        )}
+                      </ActionIcon>
+                    </Group>
                   </Group>
-                  <Group>
-                    <ActionIcon
-                      variant="default"
-                      onClick={() =>
-                        window.open(
-                          "https://github.com/jufabeck2202/pi-stock-de",
-                          "_blank"
-                        )
-                      }
-                      size={30}
-                    >
-                      <BrandGithub size={16} />
-                    </ActionIcon>
-                    <ActionIcon
-                      variant="default"
-                      onClick={() => toggleColorScheme()}
-                      size={30}
-                    >
-                      {colorScheme === "dark" ? (
-                        <Sun size={16} />
-                      ) : (
-                        <MoonStars size={16} />
-                      )}
-                    </ActionIcon>
-                  </Group>
-                </Group>
-              </Header>
-            }
-            styles={(theme) => ({
-              main: {
-                backgroundColor:
-                  theme.colorScheme === "dark"
-                    ? theme.colors.dark[8]
-                    : theme.colors.gray[0],
-              },
-            })}
-          >
-            <StartPage />
-          </AppShell>
-          <ReactQueryDevtools />
-        </QueryClientProvider>
+                </Header>
+              }
+              styles={(theme) => ({
+                main: {
+                  backgroundColor:
+                    theme.colorScheme === "dark"
+                      ? theme.colors.dark[8]
+                      : theme.colors.gray[0],
+                },
+              })}
+            >
+              <StartPage />
+            </AppShell>
+            <ReactQueryDevtools />
+          </QueryClientProvider>
+        </NotificationsProvider>
       </MantineProvider>
     </ColorSchemeProvider>
   );

@@ -40,6 +40,13 @@ type Websites struct {
 func (p Websites) GetList() []Website {
 	return p.list
 }
+func (p Websites) GetAllUrls() []string {
+	var urls []string
+	for _, v := range p.list {
+		urls = append(urls, v.URL)
+	}
+	return urls
+}
 func (p Websites) Init() {
 	p.list = make([]Website, 0)
 	p.Load()

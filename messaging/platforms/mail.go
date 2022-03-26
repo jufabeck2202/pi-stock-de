@@ -74,5 +74,6 @@ var htmlBody = `
 <body>
 <h1>The Pi {{.Name}} is availabe for {{.PriceString}}!</h1>
    <p>Check it out here: {{.URL}}</p>
+   <P> To Unsubscribe visit https://pi.juli.sh, click the Unsubscribe-Button and enter your Email adress</P>
 </body>
 `
