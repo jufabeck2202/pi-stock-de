@@ -55,7 +55,7 @@ func main() {
 	// 	AllowOrigins: "http://localhost:3000",
 	// 	AllowHeaders: "Origin, Content-Type, Accept",
 	// }))
-
+	//Monitoring
 	prometheus := fiberprometheus.New("pi-stock-de")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
@@ -99,6 +99,7 @@ func main() {
 		for _, t := range addTasks.Tasks {
 			alertManager.AddAlert(t.Website.URL, messaging.Task{t.Recipient, t.Destination})
 		}
+		log.Println("Added new Notification")
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"error": false,
 			"msg":   "task added",
@@ -131,6 +132,7 @@ func main() {
 			})
 		}
 		numberOfDeletedNotifications := alertManager.DeleteTask(websites.GetAllUrls(), deleteTask.Recipient, deleteTask.Destination)
+		log.Println("Removed Notification for ", deleteTask.Recipient)
 		return c.JSON(numberOfDeletedNotifications)
 	})
 
