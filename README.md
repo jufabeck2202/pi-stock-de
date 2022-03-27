@@ -19,7 +19,7 @@
 - Pushover
 
 ## Planned Features:
-- [ ] Delete-Route to enable users to unsubscribe from Notifications
+- [x] Delete-Route to enable users to unsubscribe from Notifications
 - [ ] Add more notification Services
   - [ ] Web-Push-Notifications
   - [ ] Add RSS-Feed
