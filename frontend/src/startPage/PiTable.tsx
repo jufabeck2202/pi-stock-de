@@ -188,7 +188,7 @@ export function PiTable({
   const [sortedData, setSortedData] = useState(data);
   const [sortBy, setSortBy] = useState<keyof Website>("in_stock");
   const [reverseSortDirection, setReverseSortDirection] = useState(true);
-  const [filter, setFilter] = useState<PiTypes>();
+  const [filter, setFilter] = useState<PiTypes>(PiTypes.NOTHING);
   const setSorting = (field: keyof Website) => {
     const reversed = field === sortBy ? !reverseSortDirection : false;
     setReverseSortDirection(reversed);
