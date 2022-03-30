@@ -173,83 +173,83 @@ websites:
     ram: 8
     shop: funk24
     ## reichelt
-  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-8-gb-ram-wlan-bt-rasp-pi-4-b-8gb-p276923.html?&trstct=pos_0&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-8-gb-ram-wlan-bt-rasp-pi-4-b-8gb-p276923.html
     type: Pi 4
     ram: 8
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-1-gb-ram-wlan-bt-rasp-pi-4-b-1gb-p259874.html?&trstct=pol_1&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-1-gb-ram-wlan-bt-rasp-pi-4-b-1gb-p259874.html
     type: Pi 4
     ram: 1
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-1gb-ram-16gb-emmc-wlan-rpi-cm4w-1gb16gb-p290501.html?&trstct=pol_2&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-1gb-ram-16gb-emmc-wlan-rpi-cm4w-1gb16gb-p290501.html
     type: Pi 4 module 16
     ram: 1
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-1gb-ram-16gb-emmc-rpi-cm4-1gb16gb-p290497.html?&trstct=pol_3&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-1gb-ram-16gb-emmc-rpi-cm4-1gb16gb-p290497.html
     type: Pi 4 module 16
     ram: 1
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-1gb-ram-32gb-emmc-wlan-rpi-cm4w-1gb32gb-p290502.html?&trstct=pol_4&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-1gb-ram-32gb-emmc-wlan-rpi-cm4w-1gb32gb-p290502.html
     type: Pi 4 module 32
     ram: 1
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-2-gb-ram-wlan-bt-rasp-pi-4-b-2gb-p259919.html?&trstct=pol_13&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-2-gb-ram-wlan-bt-rasp-pi-4-b-2gb-p259919.html
     type: Pi 4
     ram: 2
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-16gb-emmc-wlan-rpi-cm4w-2gb16gb-p290533.html?&trstct=pol_2&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-16gb-emmc-wlan-rpi-cm4w-2gb16gb-p290533.html
     type: Pi 4 module 16
     ram: 2
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-16gb-emmc-rpi-cm4-2gb16gb-p290528.html?&trstct=pol_3&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-16gb-emmc-rpi-cm4-2gb16gb-p290528.html
     type: Pi 4 module 16
     ram: 2
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-32gb-emmc-wlan-rpi-cm4w-2gb32gb-p290534.html?&trstct=pol_4&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-32gb-emmc-wlan-rpi-cm4w-2gb32gb-p290534.html
     type: Pi 4 module 32
     ram: 2
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-32gb-emmc-rpi-cm4-2gb32gb-p290529.html?&trstct=pol_5&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-2gb-ram-32gb-emmc-rpi-cm4-2gb32gb-p290529.html
     type: Pi 4 module 32
     ram: 2
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-3-b-4x-1-4-ghz-1-gb-ram-wlan-bt-raspberry-pi-3b--p217696.html?&trstct=pol_9&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-3-b-4x-1-4-ghz-1-gb-ram-wlan-bt-raspberry-pi-3b--p217696.html
     type: Pi 3B+
     ram: 1
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-4-gb-ram-wlan-bt-rasp-pi-4-b-4gb-p259920.html?&trstct=pol_12&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-4-b-4x-1-5-ghz-4-gb-ram-wlan-bt-rasp-pi-4-b-4gb-p259920.html
     type: Pi 4
     ram: 4
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-16gb-emmc-rpi-cm4-4gb16gb-p290537.html?&trstct=pol_5&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-16gb-emmc-rpi-cm4-4gb16gb-p290537.html
     type: Pi 4 module 16
     ram: 4
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-16gb-emmc-wlan-rpi-cm4w-4gb16gb-p290541.html?&trstct=pol_6&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-16gb-emmc-wlan-rpi-cm4w-4gb16gb-p290541.html
     type: Pi 4 module 16
     ram: 4
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-32gb-emmc-rpi-cm4-4gb32gb-p290538.html?&trstct=pol_7&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-32gb-emmc-rpi-cm4-4gb32gb-p290538.html
     type: Pi 4 module 32
     ram: 4
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-32gb-emmc-wlan-rpi-cm4w-4gb32gb-p290542.html?&trstct=pol_8&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-4gb-ram-32gb-emmc-wlan-rpi-cm4w-4gb32gb-p290542.html
     type: Pi 4 module 32
     ram: 8
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-16gb-emmc-wlan-rpi-cm4w-8gb16gb-p290551.html?&trstct=pol_0&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-16gb-emmc-wlan-rpi-cm4w-8gb16gb-p290551.html
     type: Pi 4 module 16
     ram: 8
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-16gb-emmc-rpi-cm4-8gb16gb-p290546.html?&trstct=pol_1&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-16gb-emmc-rpi-cm4-8gb16gb-p290546.html
     type: Pi 4 module 16
     ram: 8
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-32gb-emmc-wlan-rpi-cm4w-8gb32gb-p290552.html?&trstct=pol_2&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-32gb-emmc-wlan-rpi-cm4w-8gb32gb-p290552.html
     type: Pi 4 module 32
     ram: 8
     shop: reichelt
-  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-32gb-emmc-rpi-cm4-8gb32gb-p290547.html?&trstct=pol_3&nbc=1
+  - url: https://www.reichelt.de/raspberry-pi-compute-modul-4-8gb-ram-32gb-emmc-rpi-cm4-8gb32gb-p290547.html
     type: Pi 4 module 32
     ram: 8
     shop: reichelt
