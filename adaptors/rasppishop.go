@@ -30,15 +30,20 @@ func (b *Rasppishop) Run(list utils.Websites) {
 	// 	fmt.Println("Visiting Rasppishop ", r.URL.String())
 	// })
 
+	b.c.OnRequest(func(r *colly.Request) {
+		r.Ctx.Put("url", r.URL.String())
+	})
+
 	b.c.OnHTML("#result-wrapper", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.ChildText(".col-sm-10.col-md-6.col-lg-8")
 		item.InStock = !(e.ChildText(".status.status-0") == "Produkt vergriffen")
 		item.Time = time.Now().Format("15:04:05")
+		item.UnixTime = time.Now().Unix()
 		list.UpdateItemInList(item)
 	})
 	b.c.OnHTML(".product-info-box", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.PriceString = e.ChildText(".price_2")
 		list.UpdateItemInList(item)
 	})

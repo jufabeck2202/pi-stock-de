@@ -30,12 +30,17 @@ func (b *Bechtle) Run(list utils.Websites) {
 	// 	fmt.Println("Visiting Bechtle ", r.URL.String())
 	// })
 
+	b.c.OnRequest(func(r *colly.Request) {
+		r.Ctx.Put("url", r.URL.String())
+	})
+
 	b.c.OnHTML(".organism.conversion-box.js-conversion-box.js-pds-conversion-box", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.ChildText("h1.h-h1.big-characters")
 		item.InStock = !(e.ChildText(".delivery-info") == "Bestellen Sie jetzt und Sie erhalten die Ware sobald diese verfügbar ist.")
 		item.PriceString = e.ChildText(".bechtle-price.js-price") + " €"
 		item.Time = time.Now().Format("15:04:05")
+		item.UnixTime = time.Now().Unix()
 		list.UpdateItemInList(item)
 	})
 

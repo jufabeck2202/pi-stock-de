@@ -31,12 +31,17 @@ func (b *Okdo) Run(list utils.Websites) {
 	// 	fmt.Println("Visiting Okdo ", r.URL.String())
 	// })
 
+	b.c.OnRequest(func(r *colly.Request) {
+		r.Ctx.Put("url", r.URL.String())
+	})
+
 	b.c.OnHTML(".single-product-summary", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.ChildText(".c-product__title")
 		item.InStock = !(e.ChildText(".c-stock-level.c-stock-level--low") == "Ausverkauft")
 		item.PriceString = strings.Split(e.ChildText(".woocommerce-Price-amount.amount"), "€")[1] + " €"
 		item.Time = time.Now().Format("15:04:05")
+		item.UnixTime = time.Now().Unix()
 		list.UpdateItemInList(item)
 	})
 

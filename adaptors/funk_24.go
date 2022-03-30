@@ -31,15 +31,20 @@ func (b *Funk24) Run(list utils.Websites) {
 	// 	fmt.Println("funk24", r.URL.String())
 	// })
 
+	b.c.OnRequest(func(r *colly.Request) {
+		r.Ctx.Put("url", r.URL.String())
+	})
+
 	b.c.OnHTML(".content-main--inner", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.ChildText("h1.product--title")
 		item.Time = time.Now().Format("15:04:05")
+		item.UnixTime = time.Now().Unix()
 		list.UpdateItemInList(item)
 	})
 
 	b.c.OnHTML(".product--buybox.block", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.InStock = !(e.ChildText(".alert--content") == "Dieser Artikel steht derzeit nicht zur Verfügung!") && !(e.ChildText(".alert--content") == "Dieser Artikel steht derzeit nicht zur Verfügung!  Benachrichtigen Sie mich, sobald der Artikel lieferbar ist.")
 		item.PriceString = strings.Split(e.ChildText(".price--content.content--default"), "€")[0] + " €"
 		list.UpdateItemInList(item)

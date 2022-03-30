@@ -30,21 +30,26 @@ func (s *BuyZero) Run(list utils.Websites) {
 	// 	fmt.Println("Visiting Buyzero: ", r.URL.String())
 	// })
 
+	s.c.OnRequest(func(r *colly.Request) {
+		r.Ctx.Put("url", r.URL.String())
+	})
+
 	s.c.OnHTML(".product-meta__title.heading.h1", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.Text
 		item.Time = time.Now().Format("15:04:05")
+		item.UnixTime = time.Now().Unix()
 		list.UpdateItemInList(item)
 	})
 
 	s.c.OnHTML(".price-list", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.PriceString = strings.Replace(e.ChildText(".price"), "Angebotspreis", "", -1)
 		list.UpdateItemInList(item)
 	})
 
 	s.c.OnHTML(".product-form__inventory.inventory", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.InStock = e.Text != "Ausverkauft"
 		list.UpdateItemInList(item)
 	})

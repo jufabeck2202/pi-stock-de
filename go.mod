@@ -15,6 +15,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.4 // indirect
 	github.com/gofiber/adaptor/v2 v2.1.21 // indirect
 	github.com/gofiber/fiber/v2 v2.30.0 // indirect
+	github.com/gofiber/helmet/v2 v2.2.10 // indirect
 	github.com/gofiber/utils v0.1.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gregdel/pushover v1.1.0 // indirect

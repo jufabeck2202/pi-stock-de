@@ -23,6 +23,7 @@ type Website struct {
 	StockNumer    int       `json:"stock_number"`
 	Time          string    `json:"time"`
 	UpdateCounter int       `json:"update_counter"`
+	UnixTime      int64     `json:"unix_time"`
 }
 
 type Scrape struct {

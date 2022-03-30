@@ -258,10 +258,10 @@ websites:
     type: Pi 4 module 16
     ram: 2
     shop: okdo
-  - url: https://www.okdo.com/de/p/raspberry-pi-4-model-b-board-with-4gb-lpddr4-sdram/
-    type: Pi 4 module 16
-    ram: 4
-    shop: okdo
+  # - url: https://www.okdo.com/de/p/raspberry-pi-4-model-b-board-with-4gb-lpddr4-sdram/
+  #   type: Pi 4 module 16
+  #   ram: 4
+  #   shop: okdo
   - url: https://www.okdo.com/de/p/raspberry-pi-4-model-b-8gb/
     type: Pi 4 module 32
     ram: 8

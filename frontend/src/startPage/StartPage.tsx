@@ -14,6 +14,7 @@ export type Website = {
   price_string: string;
   time: string;
   in_stock: boolean;
+  unix_time: number;
 };
 
 export type Recipient = {

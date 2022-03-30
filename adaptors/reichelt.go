@@ -36,6 +36,7 @@ func (b *Reichelt) Run(list utils.Websites) {
 		item.InStock = !(e.ChildText(".availability") == "z.Zt. ausverkauft")
 		item.PriceString = e.ChildText("#av_price") + " €"
 		item.Time = time.Now().Format("15:04:05")
+		item.UnixTime = time.Now().Unix()
 		list.UpdateItemInList(item)
 	})
 

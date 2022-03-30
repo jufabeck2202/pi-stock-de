@@ -229,10 +229,13 @@ export function PiTable({
         ? current.filter((item) => item !== id)
         : [...current, id]
     );
-  const toggleAll = () =>
+  const toggleAll = () => {
     setSelection((current) =>
-      current.length === data.length ? [] : data.map((item) => item.url)
+      current.length === sortedData.length
+        ? []
+        : sortedData.map((item) => item.url)
     );
+  };
 
   const rows = sortedData.map((item) => {
     const selected = selection.includes(item.url);
@@ -261,6 +264,7 @@ export function PiTable({
             <CircleX size={20} strokeWidth={2} color={"red"} />
           )}
         </td>
+        <td>{new Date(item.unix_time * 1000).toLocaleTimeString()}</td>
         <td>
           <ActionIcon
             variant="default"
@@ -385,9 +389,10 @@ export function PiTable({
                 <th style={{ width: 40 }}>
                   <Checkbox
                     onChange={toggleAll}
-                    checked={selection.length === data.length}
+                    checked={selection.length === sortedData.length}
                     indeterminate={
-                      selection.length > 0 && selection.length !== data.length
+                      selection.length > 0 &&
+                      selection.length !== sortedData.length
                     }
                     transitionDuration={0}
                   />
@@ -437,6 +442,7 @@ export function PiTable({
               >
                 Stock
               </Th>
+              <th>Updated</th>
               <th>Open</th>
             </tr>
           </thead>

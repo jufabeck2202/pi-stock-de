@@ -9,6 +9,9 @@ import (
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gocolly/colly"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/csrf"
+	"github.com/gofiber/helmet/v2"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 	"gopkg.in/ezzarghili/recaptcha-go.v4"
@@ -46,15 +49,16 @@ func main() {
 	go messaging.Init()
 
 	app := fiber.New()
-
-	// // Default config
-	// app.Use(cors.New())
+	app.Use(
+		helmet.New(),
+		csrf.New(), // add Helmet middleware
+	)
 
 	// // Used for local testing
-	// app.Use(cors.New(cors.Config{
-	// 	AllowOrigins: "http://localhost:3000",
-	// 	AllowHeaders: "Origin, Content-Type, Accept",
-	// }))
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 	//Monitoring
 	prometheus := fiberprometheus.New("pi-stock-de")
 	prometheus.RegisterAt(app, "/metrics")

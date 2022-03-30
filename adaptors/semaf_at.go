@@ -29,18 +29,22 @@ func (s *Semaf) Run(list utils.Websites) {
 	// s.c.OnRequest(func(r *colly.Request) {
 	// 	fmt.Println("Visiting Semaf: ", r.URL.String())
 	// })
+	s.c.OnRequest(func(r *colly.Request) {
+		r.Ctx.Put("url", r.URL.String())
+	})
 
 	s.c.OnHTML(".product-offer", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.Id = uuid.New()
 		item.InStock = e.ChildText(".signal_image") != "Nicht auf Lager"
 		item.PriceString = e.ChildText(".price")
 		item.Time = time.Now().Format("15:04:05")
+		item.UnixTime = time.Now().Unix()
 		list.UpdateItemInList(item)
 	})
 
 	s.c.OnHTML(".product-headline", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.URL.String())
+		item := list.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.ChildText(".product-title")
 		list.UpdateItemInList(item)
 	})
