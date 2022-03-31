@@ -9,8 +9,6 @@ import (
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gocolly/colly"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/helmet/v2"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
@@ -51,14 +49,13 @@ func main() {
 	app := fiber.New()
 	app.Use(
 		helmet.New(),
-		csrf.New(), // add Helmet middleware
 	)
 
 	// // Used for local testing
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000",
-		AllowHeaders: "Origin, Content-Type, Accept",
-	}))
+	// app.Use(cors.New(cors.Config{
+	// 	AllowOrigins: "http://localhost:3000",
+	// 	AllowHeaders: "Origin, Content-Type, Accept",
+	// }))
 	//Monitoring
 	prometheus := fiberprometheus.New("pi-stock-de")
 	prometheus.RegisterAt(app, "/metrics")
@@ -77,6 +74,7 @@ func main() {
 
 		// Check, if received JSON data is valid.
 		if err := c.BodyParser(addTasks); err != nil {
+			log.Println("error: ", err)
 			// Return status 400 and error message.
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": true,
@@ -85,6 +83,7 @@ func main() {
 		}
 		err := captcha.Verify(addTasks.Capcha)
 		if err != nil {
+			log.Println("error: ", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": true,
 				"msg":   err.Error(),
@@ -147,7 +146,7 @@ func startScraper() {
 	websites.Init()
 	c := cron.New()
 	searchPi(true)
-	c.AddFunc("* * * * *", func() {
+	c.AddFunc("*/2 * * * *", func() {
 		searchPi(false)
 	})
 	c.Start()
