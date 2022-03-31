@@ -146,7 +146,7 @@ func startScraper() {
 	websites.Init()
 	c := cron.New()
 	searchPi(true)
-	c.AddFunc("*/2 * * * *", func() {
+	c.AddFunc("*/5 * * * *", func() {
 		searchPi(false)
 	})
 	c.Start()
