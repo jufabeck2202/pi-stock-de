@@ -13,9 +13,9 @@ import (
 
 type Website struct {
 	Id            uuid.UUID `json:"id"`
-	Name          string    `json:"name"`
+	Name          string    `json:"name" validate:"required,max=255"`
 	Shop          string    `json:"shop"`
-	URL           string    `json:"url"`
+	URL           string    `json:"url" validate:"required,url,max=255"`
 	Type          string    `json:"type"`
 	Ram           int       `json:"ram"`
 	InStock       bool      `json:"in_stock"`
@@ -76,7 +76,7 @@ func (p *Websites) Load() {
 	}
 }
 func (p *Websites) Save() {
-	err := storage.Set("websites", p.list)
+	err := storage.Set("websites", p.list, 0)
 	if err != nil {
 		log.Println("error saving: ", err)
 	}

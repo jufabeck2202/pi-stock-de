@@ -24,7 +24,7 @@ func NewMail() Mail {
 
 var lock = sync.Mutex{}
 
-func (m Mail) Send(recipient types.Recipient, item utils.Website) error {
+func (m Mail) initServer() *mail.SMTPServer {
 	server := mail.NewSMTPClient()
 	if n, err := strconv.Atoi(os.Getenv("MAIL_PORT")); err == nil {
 		server.Port = n
@@ -34,6 +34,21 @@ func (m Mail) Send(recipient types.Recipient, item utils.Website) error {
 
 	}
 	server.Host = os.Getenv("MAIL_HOST")
+	return server
+}
+
+func (m Mail) unsubscribeLinkBuilder(email string) string {
+
+	return "https://" + os.Getenv("HOST_URL") + "/unsubscribe/" + utils.Encrypt(email)
+
+}
+func (m Mail) verifyLinkBuilder(email string) string {
+
+	return "https://" + os.Getenv("HOST_URL") + "/verify/" + utils.Encrypt(email)
+
+}
+func (m Mail) Send(recipient types.Recipient, item utils.Website) error {
+	server := m.initServer()
 	lock.Lock()
 	smtpClient, err := server.Connect()
 	if err != nil {
@@ -49,7 +64,7 @@ func (m Mail) Send(recipient types.Recipient, item utils.Website) error {
 	var tpl bytes.Buffer
 
 	temp := template.New("t1")
-	temp.Parse(htmlBody)
+	temp.Parse(inStockBody)
 	err = temp.Execute(&tpl, item)
 	if err != nil {
 		return err
@@ -65,7 +80,49 @@ func (m Mail) Send(recipient types.Recipient, item utils.Website) error {
 	return nil
 }
 
-var htmlBody = `
+type VerifyEmailTemplate struct {
+	Email string
+	Link  string
+}
+
+func (m Mail) SendVerificationMail(newEmail string) error {
+	server := m.initServer()
+	lock.Lock()
+	smtpClient, err := server.Connect()
+	if err != nil {
+		return err
+	}
+	defer lock.Unlock()
+	defer smtpClient.Close()
+	// Create email
+	email := mail.NewMSG()
+	email.SetFrom("PI-Stock <" + os.Getenv("MAIL_USERNAME") + ">")
+	email.AddTo(newEmail)
+	email.SetSubject("Verify your email for PI-Stock")
+	var tpl bytes.Buffer
+
+	temp := template.New("t1")
+	temp.Parse(verifyEmail)
+	templateData := VerifyEmailTemplate{
+		Email: newEmail,
+		Link:  m.verifyLinkBuilder(newEmail),
+	}
+	err = temp.Execute(&tpl, templateData)
+	if err != nil {
+		return err
+	}
+	email.SetBody(mail.TextHTML, tpl.String())
+
+	// Send email^
+	err = email.Send(smtpClient)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Email sent! to " + newEmail)
+	return nil
+}
+
+var inStockBody = `
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -75,5 +132,17 @@ var htmlBody = `
 <h1>The Pi {{.Name}} is availabe for {{.PriceString}}!</h1>
    <p>Check it out here: {{.URL}}</p>
    <P> To Unsubscribe visit https://pi.juli.sh, click the Unsubscribe-Button and enter your Email adress</P>
+</body>
+`
+
+var verifyEmail = `
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title>Verify Your Email for Pi-Stock</title>
+</head>
+<body>
+<h4>Please Verify your Email {{.Email}} for Pi-Stock</h4>
+   <P>To Verify click the following link: {{.Link}}</P>
 </body>
 `

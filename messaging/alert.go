@@ -37,7 +37,7 @@ func (a *Alerts) AddAlert(url string, task Task) {
 }
 
 func (a *Alerts) SaveAlerts(url string, tasks []Task) {
-	storage.Set(url, tasks)
+	storage.Set(url, tasks, 0)
 }
 
 func (a *Alerts) DeleteTask(urls []string, recipient types.Recipient, platform types.Platform) int {

@@ -1,149 +1,87 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gocolly/colly"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/etag"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
-	"gopkg.in/ezzarghili/recaptcha-go.v4"
 
 	"github.com/jufabeck2202/piScraper/adaptors"
 	"github.com/jufabeck2202/piScraper/messaging"
 	"github.com/jufabeck2202/piScraper/messaging/types"
+	"github.com/jufabeck2202/piScraper/routes"
 	"github.com/jufabeck2202/piScraper/utils"
 )
 
-var websites = utils.Websites{}
-
-var alertManager = messaging.NewAlerts()
-
-type AddTask struct {
-	Tasks  []types.AlertTask `json:"tasks"`
-	Capcha string            `json:"captcha"`
-}
-type DeleteTask struct {
-	Recipient   types.Recipient `json:"recipient"`
-	Destination types.Platform  `json:"destination"`
-	Capcha      string          `json:"captcha"`
-}
-
+/*
+TODO:
+- Implement Verify Email Server Route
+- Add React Router to Frontend
+- Add React route to verify email
+- excape unwanted characters from verify token
+*/
 func main() {
-	fmt.Println(time.Now())
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println("No .env file found", err)
 	}
-	logEnv()
-	captcha, _ := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_SECRET"), recaptcha.V3, 10*time.Second) // for v3 API use https://g.co/recaptcha/v3 (apperently the same admin UI at the time of writing)
+	// logEnv()
 	go startScraper()
 
 	go messaging.Init()
 
 	app := fiber.New()
-	app.Use(
-		helmet.New(),
-	)
+	app.Use(helmet.New())
+	app.Use(compress.New())
+	app.Use(etag.New())
+	app.Use(favicon.New())
+	app.Use(logger.New())
+	app.Use(recover.New())
+	app.Use(requestid.New())
 
+	app.Use(limiter.New(limiter.Config{
+		Max: 100,
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(&fiber.Map{
+				"status":  "fail",
+				"message": "Too many request",
+			})
+		},
+	}))
 	// // Used for local testing
-	// app.Use(cors.New(cors.Config{
-	// 	AllowOrigins: "http://localhost:3000",
-	// 	AllowHeaders: "Origin, Content-Type, Accept",
-	// }))
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 	//Monitoring
 	prometheus := fiberprometheus.New("pi-stock-de")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
-	// Or extend your config for customization
+
+	//routes
 	app.Static("/", "./frontend/build")
-
-	app.Get("/api/v1/status", func(c *fiber.Ctx) error {
-
-		return c.JSON(websites.GetList())
-	})
-
-	app.Post("/api/v1/alert", func(c *fiber.Ctx) error {
-		// Create new Book struct
-		addTasks := &AddTask{}
-
-		// Check, if received JSON data is valid.
-		if err := c.BodyParser(addTasks); err != nil {
-			log.Println("error: ", err)
-			// Return status 400 and error message.
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
-		}
-		err := captcha.Verify(addTasks.Capcha)
-		if err != nil {
-			log.Println("error: ", err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
-		}
-		//check if the task is valid
-		for _, t := range addTasks.Tasks {
-			if t.Recipient.Pushover == "" && t.Recipient.Webhook == "" && t.Recipient.Email == "" || t.Destination > 3 || t.Destination < 1 {
-				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-					"error": true,
-					"msg":   "invalid task structure",
-				})
-			}
-		}
-		//Add task to alert
-		for _, t := range addTasks.Tasks {
-			alertManager.AddAlert(t.Website.URL, messaging.Task{t.Recipient, t.Destination})
-		}
-		log.Println("Added new Notification")
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"error": false,
-			"msg":   "task added",
-		})
-	})
-
-	app.Delete("/api/v1/alert/", func(c *fiber.Ctx) error {
-		deleteTask := &DeleteTask{}
-
-		// Check, if received JSON data is valid.
-		if err := c.BodyParser(deleteTask); err != nil {
-			// Return status 400 and error message.
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
-		}
-		err := captcha.Verify(deleteTask.Capcha)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
-		}
-		//check if the task is valid
-		if deleteTask.Recipient.Pushover == "" && deleteTask.Recipient.Webhook == "" && deleteTask.Recipient.Email == "" || deleteTask.Destination > 3 || deleteTask.Destination < 1 {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   "invalid task structure",
-			})
-		}
-		numberOfDeletedNotifications := alertManager.DeleteTask(websites.GetAllUrls(), deleteTask.Recipient, deleteTask.Destination)
-		log.Println("Removed Notification for ", deleteTask.Recipient)
-		return c.JSON(numberOfDeletedNotifications)
-	})
+	app.Get("/api/v1/status", routes.GetTasksController)
+	app.Post("/api/v1/alert", routes.AddTaskController)
+	app.Delete("/api/v1/alert/", routes.DeleteTaskController)
 
 	app.Listen(":3001")
 }
 
 func startScraper() {
-	websites.Init()
+	routes.Websites.Init()
 	c := cron.New()
 	searchPi(true)
 	c.AddFunc("*/5 * * * *", func() {
@@ -151,17 +89,17 @@ func startScraper() {
 	})
 	c.Start()
 }
+
 func searchPi(firstRun bool) {
 	log.Println("Searching for Pi")
 	adaptorsList := make([]adaptors.Adaptor, 0)
-	websites.Load()
+	routes.Websites.Load()
 	c := colly.NewCollector(
 		colly.Async(true),
 	)
-	//
 	adaptorsList = append(adaptorsList, adaptors.NewBechtle(c), adaptors.NewRappishop(c), adaptors.NewOkdo(c), adaptors.NewBerryBase(c), adaptors.NewSemaf(c), adaptors.NewBuyZero(c), adaptors.NewELV(c), adaptors.NewWelectron(c), adaptors.NewPishop(c), adaptors.NewFunk24(c), adaptors.NewReichelt(c))
 	for _, site := range adaptorsList {
-		site.Run(websites)
+		site.Run(routes.Websites)
 	}
 
 	for _, site := range adaptorsList {
@@ -169,13 +107,13 @@ func searchPi(firstRun bool) {
 	}
 
 	if !firstRun {
-		changes := websites.CheckForChanges()
+		changes := routes.Websites.CheckForChanges()
 		if len(changes) > 0 {
 			scheduleUpdates(changes)
 		}
 		log.Println("no changes")
 	}
-	websites.Save()
+	routes.Websites.Save()
 }
 
 func scheduleUpdates(websites []utils.Website) {
@@ -183,7 +121,7 @@ func scheduleUpdates(websites []utils.Website) {
 
 	for _, w := range websites {
 		log.Printf("%s changed", w.URL)
-		alert := alertManager.LoadAlerts(w.URL)
+		alert := routes.AlertManager.LoadAlerts(w.URL)
 		for _, t := range alert {
 			tasksToSchedule = append(tasksToSchedule, types.AlertTask{w, t.Recipient, t.Destination})
 			log.Println("scheduling update for ", w.URL)

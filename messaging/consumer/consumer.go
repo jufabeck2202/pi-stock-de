@@ -9,7 +9,10 @@ import (
 
 	"github.com/jufabeck2202/piScraper/messaging/platforms"
 	"github.com/jufabeck2202/piScraper/messaging/types"
+	"github.com/jufabeck2202/piScraper/services"
 )
+
+var mailVerifier = services.MailVerifier{}
 
 type Consumer struct {
 	Name    string
@@ -47,6 +50,11 @@ func send(item types.AlertTask) {
 			fmt.Println("failed to send pushhover: ", err)
 		}
 	case types.Mail:
+		//check if email is verified
+		verified := mailVerifier.IsVerified(item.Recipient.Email)
+		if !verified {
+			fmt.Println("Email not verified", item.Recipient.Email)
+		}
 		err := platforms.NewMail().Send(item.Recipient, item.Website)
 		if err != nil {
 			fmt.Println("failed to send pushhover: ", err)

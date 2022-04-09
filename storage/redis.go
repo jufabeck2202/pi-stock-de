@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -30,7 +31,7 @@ func GetRedisConnection() (*redis.Client, error) {
 	return redisClient, nil
 }
 
-func Set(key string, value interface{}) error {
+func Set(key string, value interface{}, ttl time.Duration) error {
 	c, err := GetRedisConnection()
 	if err != nil {
 		return err
@@ -39,7 +40,7 @@ func Set(key string, value interface{}) error {
 	if err != nil {
 		return err
 	}
-	return c.Set(context.Background(), key, p, 0).Err()
+	return c.Set(context.Background(), key, p, ttl).Err()
 }
 
 func Get(key string, dest interface{}) error {

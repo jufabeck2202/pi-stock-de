@@ -14,6 +14,7 @@ COPY adaptors/ ./adaptors
 COPY messaging/ ./messaging
 COPY storage/ ./storage
 COPY utils/ ./utils
+COPY routes/ ./routes
 COPY main.go ./
 COPY go.mod go.sum ./
 # Set necessary environment variables needed for our image and build the API server.

@@ -11,3 +11,5 @@ tmp/
 # Environment variables
 .env
 cache/
+
+.vscode
