@@ -63,6 +63,12 @@ func Init() {
 
 }
 
+type Messanger struct {
+	ConcurrentJobs int
+}
+
+//TODO remove rmq dependency
+
 func AddToQueue(task []types.AlertTask) {
 	for _, v := range task {
 		taskBytes, _ := json.Marshal(v)

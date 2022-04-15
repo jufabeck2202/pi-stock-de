@@ -7,20 +7,21 @@ import (
 
 	"github.com/gocolly/colly"
 
-	"github.com/jufabeck2202/piScraper/utils"
+	"github.com/jufabeck2202/piScraper/internal/core/ports"
 )
 
 type ELV struct {
-	c *colly.Collector
+	c              *colly.Collector
+	websiteService ports.WebsiteService
 }
 
-func NewELV(c *colly.Collector) *ELV {
+func NewELV(c *colly.Collector, websiteService ports.WebsiteService) *ELV {
 	copy := c.Clone()
-	return &ELV{copy}
+	return &ELV{copy, websiteService}
 }
 
-func (b *ELV) Run(list utils.Websites) {
-	for _, url := range list.GetUrls("elv") {
+func (b *ELV) Run() {
+	for _, url := range b.websiteService.GetUrls("elv") {
 		b.c.Visit(url)
 	}
 
@@ -36,26 +37,26 @@ func (b *ELV) Run(list utils.Websites) {
 	})
 
 	b.c.OnHTML("h1.product--title", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.Ctx.Get("url"))
+		item := b.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.Text
 		item.InStock = e.ChildText("#buy-button") == "In den Warenkorb"
 		item.PriceString = e.ChildText(".price--content")
 		item.Time = time.Now().Format("15:04:05")
 		item.UnixTime = time.Now().Unix()
-		list.UpdateItemInList(item)
+		b.websiteService.UpdateItemInList(item)
 	})
 
 	b.c.OnHTML(".product--buybox.block", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.Ctx.Get("url"))
+		item := b.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.PriceString = e.ChildText(".price--content.content--default")
 		item.InStock = !(strings.Contains(e.ChildText(".delivery--text"), "nicht lieferbar"))
-		list.UpdateItemInList(item)
+		b.websiteService.UpdateItemInList(item)
 	})
 
 	b.c.OnHTML(".product--buybox.block", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.Ctx.Get("url"))
+		item := b.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.InStock = e.ChildText(".delivery--text.delivery--text-available") != ""
-		list.UpdateItemInList(item)
+		b.websiteService.UpdateItemInList(item)
 	})
 
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gocolly/colly"
@@ -91,7 +90,6 @@ func startScraper() {
 }
 
 func searchPi(firstRun bool) {
-	log.Println("Searching for Pi")
 	adaptorsList := make([]adaptors.Adaptor, 0)
 	routes.Websites.Load()
 	c := colly.NewCollector(
@@ -109,9 +107,9 @@ func searchPi(firstRun bool) {
 	if !firstRun {
 		changes := routes.Websites.CheckForChanges()
 		if len(changes) > 0 {
+			log.Println("Found Updates: ", len(changes))
 			scheduleUpdates(changes)
 		}
-		log.Println("no changes")
 	}
 	routes.Websites.Save()
 }
@@ -120,20 +118,13 @@ func scheduleUpdates(websites []utils.Website) {
 	tasksToSchedule := []types.AlertTask{}
 
 	for _, w := range websites {
-		log.Printf("%s changed", w.URL)
+		log.Printf("%s changed \n", w.URL)
 		alert := routes.AlertManager.LoadAlerts(w.URL)
 		for _, t := range alert {
-			tasksToSchedule = append(tasksToSchedule, types.AlertTask{w, t.Recipient, t.Destination})
-			log.Println("scheduling update for ", w.URL)
-			log.Println(t.Recipient)
+			tasksToSchedule = append(tasksToSchedule, types.AlertTask{Website: w, Recipient: t.Recipient, Destination: t.Destination})
+			log.Printf("scheduling update for %s and %s \n", w.URL, t.Recipient)
 		}
 	}
 	log.Println("Found websites to update: ", len(tasksToSchedule))
 	messaging.AddToQueue(tasksToSchedule)
-}
-func logEnv() {
-	log.Println("HOST_URL: " + os.Getenv("HOST_URL"))
-	log.Println("RECAPTCHA_SECRET: " + os.Getenv("RECAPTCHA_SECRET"))
-	log.Println("REDIS_HOST: " + os.Getenv("REDIS_HOST"))
-	log.Println("REDIS_PASSWORD: " + os.Getenv("REDIS_PASSWORD"))
 }

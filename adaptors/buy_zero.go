@@ -7,20 +7,21 @@ import (
 
 	"github.com/gocolly/colly"
 
-	"github.com/jufabeck2202/piScraper/utils"
+	"github.com/jufabeck2202/piScraper/internal/core/ports"
 )
 
 type BuyZero struct {
-	c *colly.Collector
+	c              *colly.Collector
+	websiteService ports.WebsiteService
 }
 
-func NewBuyZero(c *colly.Collector) *BuyZero {
+func NewBuyZero(c *colly.Collector, websiteService ports.WebsiteService) *BuyZero {
 	copy := c.Clone()
-	return &BuyZero{copy}
+	return &BuyZero{copy, websiteService}
 }
 
-func (s *BuyZero) Run(list utils.Websites) {
-	for _, url := range list.GetUrls("buyzero") {
+func (s *BuyZero) Run() {
+	for _, url := range s.websiteService.GetUrls("buyzero") {
 		s.c.Visit(url)
 	}
 	s.c.URLFilters = []*regexp.Regexp{
@@ -35,23 +36,23 @@ func (s *BuyZero) Run(list utils.Websites) {
 	})
 
 	s.c.OnHTML(".product-meta__title.heading.h1", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.Ctx.Get("url"))
+		item := s.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.Text
 		item.Time = time.Now().Format("15:04:05")
 		item.UnixTime = time.Now().Unix()
-		list.UpdateItemInList(item)
+		s.websiteService.UpdateItemInList(item)
 	})
 
 	s.c.OnHTML(".price-list", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.Ctx.Get("url"))
+		item := s.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.PriceString = strings.Replace(e.ChildText(".price"), "Angebotspreis", "", -1)
-		list.UpdateItemInList(item)
+		s.websiteService.UpdateItemInList(item)
 	})
 
 	s.c.OnHTML(".product-form__inventory.inventory", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.Ctx.Get("url"))
+		item := s.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.InStock = e.Text != "Ausverkauft"
-		list.UpdateItemInList(item)
+		s.websiteService.UpdateItemInList(item)
 	})
 }
 

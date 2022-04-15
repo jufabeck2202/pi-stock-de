@@ -7,20 +7,21 @@ import (
 
 	"github.com/gocolly/colly"
 
-	"github.com/jufabeck2202/piScraper/utils"
+	"github.com/jufabeck2202/piScraper/internal/core/ports"
 )
 
 type Okdo struct {
-	c *colly.Collector
+	c              *colly.Collector
+	websiteService ports.WebsiteService
 }
 
-func NewOkdo(c *colly.Collector) *Okdo {
+func NewOkdo(c *colly.Collector, websiteService ports.WebsiteService) *Okdo {
 	copy := c.Clone()
-	return &Okdo{copy}
+	return &Okdo{copy, websiteService}
 }
 
-func (b *Okdo) Run(list utils.Websites) {
-	for _, url := range list.GetUrls("okdo") {
+func (b *Okdo) Run() {
+	for _, url := range b.websiteService.GetUrls("okdo") {
 		b.c.Visit(url)
 	}
 
@@ -36,13 +37,13 @@ func (b *Okdo) Run(list utils.Websites) {
 	})
 
 	b.c.OnHTML(".single-product-summary", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.Ctx.Get("url"))
+		item := b.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.ChildText(".c-product__title")
 		item.InStock = !(e.ChildText(".c-stock-level.c-stock-level--low") == "Ausverkauft")
 		item.PriceString = strings.Split(e.ChildText(".woocommerce-Price-amount.amount"), "€")[1] + " €"
 		item.Time = time.Now().Format("15:04:05")
 		item.UnixTime = time.Now().Unix()
-		list.UpdateItemInList(item)
+		b.websiteService.UpdateItemInList(item)
 	})
 
 }

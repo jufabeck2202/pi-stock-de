@@ -1,14 +1,38 @@
-package routes
+package handlers
 
 import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/jufabeck2202/piScraper/internal/core/ports"
 	"github.com/jufabeck2202/piScraper/messaging"
+	"github.com/jufabeck2202/piScraper/messaging/types"
 )
 
-func VerifyMailController(c *fiber.Ctx) error {
+type AddTasks struct {
+	Tasks  []types.AlertTask `json:"tasks" validate:"dive,required"`
+	Capcha string            `json:"captcha" validate:"required"`
+}
+
+type AlertHandler struct {
+	websiteService   ports.WebsiteService
+	validatorService ports.ValidateService
+	captchaService   ports.CaptchaService
+	alertService     ports.AlertService
+}
+
+func NewAlertHandler(websiteService ports.WebsiteService, validatorService ports.ValidateService, captchaService ports.CaptchaService, alertService ports.AlertService) *AlertHandler {
+
+	return &AlertHandler{
+		websiteService:   websiteService,
+		validatorService: validatorService,
+		captchaService:   captchaService,
+		alertService:     alertService,
+	}
+}
+
+func (hdl *AlertHandler) Post(c *fiber.Ctx) error {
 	// Create new Book struct
 	addTasks := &AddTasks{}
 
@@ -21,11 +45,11 @@ func VerifyMailController(c *fiber.Ctx) error {
 			"msg":   err.Error(),
 		})
 	}
-	errors := Validate(*addTasks)
+	errors := hdl.validatorService.Validate(*addTasks)
 	if errors != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
-	err := Capcha.Verify(addTasks.Capcha)
+	err := hdl.captchaService.Verify(addTasks.Capcha)
 	if err != nil {
 		log.Println("error: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -44,7 +68,7 @@ func VerifyMailController(c *fiber.Ctx) error {
 	}
 	//Add task to alert
 	for _, t := range addTasks.Tasks {
-		alertManager.AddAlert(t.Website.URL, messaging.Task{Recipient: t.Recipient.SanitizedRecipient(), Destination: t.Destination})
+		hdl.alertService.AddAlert(t.Website.URL, messaging.Task{Recipient: t.Recipient.SanitizedRecipient(), Destination: t.Destination})
 	}
 	log.Println("Added new Notification")
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{

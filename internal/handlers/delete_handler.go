@@ -1,13 +1,20 @@
-package routes
+package handlers
 
 import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/jufabeck2202/piScraper/messaging"
+	"github.com/jufabeck2202/piScraper/internal/core/ports"
 	"github.com/jufabeck2202/piScraper/messaging/types"
 )
+
+type DeleteHandler struct {
+	websiteService   ports.WebsiteService
+	validatorService ports.ValidateService
+	captchaService   ports.CaptchaService
+	alertService     ports.AlertService
+}
 
 type DeleteTask struct {
 	Recipient   types.Recipient `json:"recipient" validate:"dive,required"`
@@ -15,9 +22,17 @@ type DeleteTask struct {
 	Capcha      string          `json:"captcha" validate:"required"`
 }
 
-var alertManager = messaging.NewAlerts()
+func NewDeleteHandler(websiteService ports.WebsiteService, validatorService ports.ValidateService, captchaService ports.CaptchaService, alertService ports.AlertService) *DeleteHandler {
 
-func DeleteTaskController(c *fiber.Ctx) error {
+	return &DeleteHandler{
+		websiteService:   websiteService,
+		validatorService: validatorService,
+		captchaService:   captchaService,
+		alertService:     alertService,
+	}
+}
+
+func (hdl *DeleteHandler) Delete(c *fiber.Ctx) error {
 
 	deleteTask := &DeleteTask{}
 
@@ -30,11 +45,11 @@ func DeleteTaskController(c *fiber.Ctx) error {
 		})
 	}
 
-	errors := Validate(*deleteTask)
+	errors := hdl.validatorService.Validate(*deleteTask)
 	if errors != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
-	err := Capcha.Verify(deleteTask.Capcha)
+	err := hdl.captchaService.Verify(deleteTask.Capcha)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
@@ -48,7 +63,7 @@ func DeleteTaskController(c *fiber.Ctx) error {
 			"msg":   "invalid task structure",
 		})
 	}
-	numberOfDeletedNotifications := alertManager.DeleteTask(Websites.GetAllUrls(), deleteTask.Recipient, deleteTask.Destination)
+	numberOfDeletedNotifications := hdl.alertService.DeleteTask(hdl.websiteService.GetAllUrls(), deleteTask.Recipient, deleteTask.Destination)
 	log.Println("Removed Notification for ", deleteTask.Recipient)
 	return c.JSON(numberOfDeletedNotifications)
 }

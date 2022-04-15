@@ -10,21 +10,16 @@ import (
 
 	mail "github.com/xhit/go-simple-mail/v2"
 
-	"github.com/jufabeck2202/piScraper/messaging/types"
+	"github.com/jufabeck2202/piScraper/internal/core/domain"
 	"github.com/jufabeck2202/piScraper/utils"
 )
 
 type Mail struct {
+	server *mail.SMTPServer
 }
 
 func NewMail() Mail {
 
-	return Mail{}
-}
-
-var lock = sync.Mutex{}
-
-func (m Mail) initServer() *mail.SMTPServer {
 	server := mail.NewSMTPClient()
 	if n, err := strconv.Atoi(os.Getenv("MAIL_PORT")); err == nil {
 		server.Port = n
@@ -34,8 +29,12 @@ func (m Mail) initServer() *mail.SMTPServer {
 
 	}
 	server.Host = os.Getenv("MAIL_HOST")
-	return server
+	return Mail{
+		server: server,
+	}
 }
+
+var lock = sync.Mutex{}
 
 func (m Mail) unsubscribeLinkBuilder(email string) string {
 
@@ -47,10 +46,9 @@ func (m Mail) verifyLinkBuilder(email string) string {
 	return "https://" + os.Getenv("HOST_URL") + "/verify/" + utils.Encrypt(email)
 
 }
-func (m Mail) Send(recipient types.Recipient, item utils.Website) error {
-	server := m.initServer()
+func (m Mail) Send(recipient domain.Recipient, item domain.Website) error {
 	lock.Lock()
-	smtpClient, err := server.Connect()
+	smtpClient, err := m.server.Connect()
 	if err != nil {
 		return err
 	}
@@ -86,9 +84,8 @@ type VerifyEmailTemplate struct {
 }
 
 func (m Mail) SendVerificationMail(newEmail string) error {
-	server := m.initServer()
 	lock.Lock()
-	smtpClient, err := server.Connect()
+	smtpClient, err := m.server.Connect()
 	if err != nil {
 		return err
 	}

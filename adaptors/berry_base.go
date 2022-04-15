@@ -6,20 +6,21 @@ import (
 
 	"github.com/gocolly/colly"
 
-	"github.com/jufabeck2202/piScraper/utils"
+	"github.com/jufabeck2202/piScraper/internal/core/ports"
 )
 
 type BerryBase struct {
-	c *colly.Collector
+	c              *colly.Collector
+	websiteService ports.WebsiteService
 }
 
-func NewBerryBase(c *colly.Collector) *BerryBase {
+func NewBerryBase(c *colly.Collector, websiteService ports.WebsiteService) *BerryBase {
 	copy := c.Clone()
-	return &BerryBase{copy}
+	return &BerryBase{copy, websiteService}
 }
 
-func (b *BerryBase) Run(list utils.Websites) {
-	for _, url := range list.GetUrls("berrybase") {
+func (b *BerryBase) Run() {
+	for _, url := range b.websiteService.GetUrls("berrybase") {
 		b.c.Visit(url)
 	}
 
@@ -31,13 +32,13 @@ func (b *BerryBase) Run(list utils.Websites) {
 	})
 
 	b.c.OnHTML(".product--detail-upper", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.Ctx.Get("url"))
+		item := b.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.ChildText(".product--title")
 		item.InStock = e.ChildText("#buy-button") == "In den Warenkorb"
 		item.PriceString = e.ChildText(".price--content")
 		item.Time = time.Now().Format("15:04:05")
 		item.UnixTime = time.Now().Unix()
-		list.UpdateItemInList(item)
+		b.websiteService.UpdateItemInList(item)
 	})
 
 }

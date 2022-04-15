@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/jufabeck2202/piScraper/messaging/types"
-	"github.com/jufabeck2202/piScraper/utils"
+	"github.com/jufabeck2202/piScraper/internal/core/domain"
 )
 
 type webhook struct {
@@ -16,7 +15,7 @@ func NewWebhook() *webhook {
 	return &webhook{}
 }
 
-func (p webhook) Send(recipient types.Recipient, item utils.Website) error {
+func (p webhook) Send(recipient domain.Recipient, item domain.Website) error {
 	// struct to json
 	json, err := json.Marshal(item)
 	if err != nil {

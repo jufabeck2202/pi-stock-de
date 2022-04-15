@@ -7,20 +7,21 @@ import (
 
 	"github.com/gocolly/colly"
 
-	"github.com/jufabeck2202/piScraper/utils"
+	"github.com/jufabeck2202/piScraper/internal/core/ports"
 )
 
 type Welectron struct {
-	c *colly.Collector
+	c              *colly.Collector
+	websiteService ports.WebsiteService
 }
 
-func NewWelectron(c *colly.Collector) *Welectron {
+func NewWelectron(c *colly.Collector, websiteService ports.WebsiteService) *Welectron {
 	copy := c.Clone()
-	return &Welectron{copy}
+	return &Welectron{copy, websiteService}
 }
 
-func (b *Welectron) Run(list utils.Websites) {
-	for _, url := range list.GetUrls("welectron") {
+func (b *Welectron) Run() {
+	for _, url := range b.websiteService.GetUrls("welectron") {
 		b.c.Visit(url)
 	}
 
@@ -36,13 +37,13 @@ func (b *Welectron) Run(list utils.Websites) {
 	})
 
 	b.c.OnHTML(".product-info.col-sm-7", func(e *colly.HTMLElement) {
-		item := list.GetItemById(e.Request.Ctx.Get("url"))
+		item := b.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.ChildText(".fn.product-title")
 		item.InStock = !(e.ChildText(".status-text") == "nicht lieferbar") && !(e.ChildText(".status.status-1") == "im Zulauf")
 		item.PriceString = strings.Split(e.ChildText(".prodprice.inclvat.text-nowrap"), "€")[0] + " €"
 		item.Time = time.Now().Format("15:04:05")
 		item.UnixTime = time.Now().Unix()
-		list.UpdateItemInList(item)
+		b.websiteService.UpdateItemInList(item)
 	})
 
 }
