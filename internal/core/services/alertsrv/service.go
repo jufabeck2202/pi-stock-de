@@ -3,18 +3,17 @@ package alertsrv
 import (
 	"github.com/jufabeck2202/piScraper/internal/core/domain"
 	"github.com/jufabeck2202/piScraper/internal/core/ports"
-	"github.com/jufabeck2202/piScraper/messaging/types"
 )
 
 type service struct {
-	tasks           []types.AlertTask
+	tasks           []domain.AlertTask
 	alertRepository ports.RedisRepository
 }
 
 func New(alertRepository ports.RedisRepository) *service {
 	return &service{
 		alertRepository: alertRepository,
-		tasks:           make([]types.AlertTask, 0),
+		tasks:           make([]domain.AlertTask, 0),
 	}
 }
 
@@ -42,7 +41,7 @@ func (srv *service) SaveAlerts(url string, tasks []domain.Alert) {
 	srv.alertRepository.Set(url, tasks, 0)
 }
 
-func (srv *service) DeleteTask(urls []string, recipient types.Recipient, platform types.Platform) int {
+func (srv *service) DeleteTask(urls []string, recipient domain.Recipient, platform domain.Platform) int {
 	numberOfDeletedTasks := 0
 	for _, url := range urls {
 		tasks := srv.LoadAlerts(url)

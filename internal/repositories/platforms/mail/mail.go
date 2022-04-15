@@ -1,4 +1,4 @@
-package platforms
+package mail
 
 import (
 	"bytes"

@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gocolly/colly"
@@ -18,11 +19,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 
-	"github.com/jufabeck2202/piScraper/adaptors"
 	"github.com/jufabeck2202/piScraper/messaging"
-	"github.com/jufabeck2202/piScraper/messaging/types"
-	"github.com/jufabeck2202/piScraper/routes"
-	"github.com/jufabeck2202/piScraper/utils"
 )
 
 /*
@@ -37,6 +34,12 @@ func main() {
 	if err != nil {
 		log.Println("No .env file found", err)
 	}
+
+	// Initialize the app
+
+	redisRepository, err := beju.NewRedisRepository(os.Getenv("REDIS_URL"))
+	// websiteService := websitesrv.New()
+	// alertService := alertsrv.New()
 	// logEnv()
 	go startScraper()
 
