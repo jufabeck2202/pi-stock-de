@@ -11,7 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
@@ -23,11 +22,11 @@ import (
 	"github.com/jufabeck2202/piScraper/internal/core/ports"
 	"github.com/jufabeck2202/piScraper/internal/core/services/alertsrv"
 	"github.com/jufabeck2202/piScraper/internal/core/services/captchasrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/mailsrv"
 	"github.com/jufabeck2202/piScraper/internal/core/services/notificationsrv"
 	"github.com/jufabeck2202/piScraper/internal/core/services/validatesrv"
 	"github.com/jufabeck2202/piScraper/internal/core/services/websitesrv"
 	"github.com/jufabeck2202/piScraper/internal/handlers"
-	"github.com/jufabeck2202/piScraper/internal/repositories/platforms/mail"
 	"github.com/jufabeck2202/piScraper/internal/repositories/platforms/pushover"
 	"github.com/jufabeck2202/piScraper/internal/repositories/platforms/webhook.go"
 	"github.com/jufabeck2202/piScraper/internal/repositories/redis"
@@ -40,6 +39,18 @@ TODO:
 - Add React route to verify email
 - excape unwanted characters from verify token
 */
+
+var (
+	redisRepository ports.RedisRepository
+
+	websiteService      ports.WebsiteService
+	alertService        ports.AlertService
+	notificationService ports.NotificationService
+	mailService         ports.MailService
+	captchaService      ports.CaptchaService
+	validateService     ports.ValidateService
+)
+
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -47,27 +58,27 @@ func main() {
 	}
 
 	// Initialize the app
-	redisRepository, err := redis.NewRedisRepository()
+	redisRepository, err = redis.NewRedisRepository()
 	if err != nil {
 		panic("Could not connect to redis")
 	}
-	websiteService := websitesrv.New(redisRepository)
-	alertService := alertsrv.New(redisRepository)
-	captchaService, err := captchasrv.New()
+	websiteService = websitesrv.New(redisRepository)
+	alertService = alertsrv.New(redisRepository)
+	captchaService, err = captchasrv.New()
 	if err != nil {
 		panic("Could not connect to captcha service")
 	}
-	validateService := validatesrv.New()
+	validateService = validatesrv.New()
 
 	// logEnv()
-	go startScraper(websiteService, alertService)
+	go startScraper()
 
 	app := fiber.New()
 	app.Use(helmet.New())
 	app.Use(compress.New())
 	app.Use(etag.New())
 	app.Use(favicon.New())
-	app.Use(logger.New())
+	// app.Use(logger.New())
 	app.Use(recover.New())
 	app.Use(requestid.New())
 
@@ -94,30 +105,34 @@ func main() {
 	getController := handlers.NewGetHandler(websiteService)
 	alertController := handlers.NewAlertHandler(websiteService, validateService, captchaService, alertService)
 	deleteController := handlers.NewDeleteHandler(websiteService, validateService, captchaService, alertService)
+	rssController := handlers.NewRssHandler(websiteService)
 
 	//routes
 	app.Static("/", "./frontend/build")
 	app.Get("/api/v1/status", getController.Get)
+	app.Get("/rss", rssController.Get)
 	app.Post("/api/v1/alert", alertController.Post)
 	app.Delete("/api/v1/alert/", deleteController.Delete)
 
 	app.Listen(":3001")
 }
 
-func startScraper(websiteService ports.WebsiteService, alertService ports.AlertService) {
-	mailService := mail.NewMail()
+func startScraper() {
+	mailService = mailsrv.New(redisRepository)
 	pushoverServie := pushover.NewPushover()
 	webhookService := webhook.NewWebhook()
-	notificationService := notificationsrv.NewNotificationService(,)
+	notificationService = notificationsrv.NewNotificationService(mailService, pushoverServie, webhookService)
 	c := cron.New()
-	searchPi(true, websiteService, alertService)
-	c.AddFunc("*/5 * * * *", func() {
-		searchPi(false, websiteService, alertService)
+	searchPi(true)
+	log.Println("Starting cron job")
+
+	c.AddFunc("*/1 * * * *", func() {
+		searchPi(false)
 	})
 	c.Start()
 }
 
-func searchPi(firstRun bool, websiteService ports.WebsiteService, alertService ports.AlertService) {
+func searchPi(firstRun bool) {
 	adaptorsList := make([]ports.Adaptor, 0)
 	websiteService.Load()
 	c := colly.NewCollector(
@@ -136,13 +151,13 @@ func searchPi(firstRun bool, websiteService ports.WebsiteService, alertService p
 		changes := websiteService.CheckForChanges()
 		if len(changes) > 0 {
 			log.Println("Found Updates: ", len(changes))
-			scheduleUpdates(changes, alertService)
+			scheduleUpdates(changes)
 		}
 	}
 	websiteService.Save()
 }
 
-func scheduleUpdates(websites domain.Websites, alertService ports.AlertService) {
+func scheduleUpdates(websites domain.Websites) {
 	tasksToSchedule := make([]domain.AlertTask, len(websites))
 
 	for _, w := range websites {
@@ -154,4 +169,5 @@ func scheduleUpdates(websites domain.Websites, alertService ports.AlertService) 
 		}
 	}
 	log.Println("Found websites to update: ", len(tasksToSchedule))
+	notificationService.Notifiy(tasksToSchedule)
 }

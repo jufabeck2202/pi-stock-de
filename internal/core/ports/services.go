@@ -34,6 +34,8 @@ type MailService interface {
 	IsVerified(email string) bool
 	NewEmailSubscriber(email string) error
 	Verify(email string) error
+	Send(recipient domain.Recipient, item domain.Website) error
+	SendVerificationMail(newEmail string) error
 }
 
 type MessagingPlatform interface {
@@ -43,4 +45,7 @@ type MessagingPlatform interface {
 type Adaptor interface {
 	Run()
 	Wait()
+}
+type NotificationService interface {
+	Notifiy(alerts []domain.AlertTask)
 }

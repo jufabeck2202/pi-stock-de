@@ -11,7 +11,6 @@ import (
 
 type service struct {
 	mailVerifierService ports.MailService
-	emailClient         ports.MessagingPlatform
 	pushoverClient      ports.MessagingPlatform
 	webhookClient       ports.MessagingPlatform
 }
@@ -23,10 +22,9 @@ type AlertTaskQueue struct {
 	Err         error
 }
 
-func NewNotificationService(mailVerifierService ports.MailService, pushoverClient ports.MessagingPlatform, emailClient ports.MessagingPlatform, webhookClient ports.MessagingPlatform) *service {
+func NewNotificationService(mailVerifierService ports.MailService, pushoverClient ports.MessagingPlatform, webhookClient ports.MessagingPlatform) *service {
 	return &service{
 		mailVerifierService: mailVerifierService,
-		emailClient:         emailClient,
 		pushoverClient:      pushoverClient,
 		webhookClient:       webhookClient,
 	}
@@ -49,7 +47,7 @@ func (srv *service) send(item AlertTaskQueue, wg *sync.WaitGroup) {
 			item.Err = fmt.Errorf("email not verified")
 			return
 		}
-		err := srv.emailClient.Send(item.Recipient, item.Website)
+		err := srv.mailVerifierService.Send(item.Recipient, item.Website)
 		if err != nil {
 			fmt.Println("failed to send pushhover: ", err)
 			item.Err = fmt.Errorf("failed to send email: %v", err)
