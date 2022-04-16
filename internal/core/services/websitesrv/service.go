@@ -10,7 +10,6 @@ import (
 
 	"github.com/jufabeck2202/piScraper/internal/core/domain"
 	"github.com/jufabeck2202/piScraper/internal/core/ports"
-	"github.com/jufabeck2202/piScraper/utils"
 )
 
 type service struct {
@@ -19,13 +18,14 @@ type service struct {
 }
 
 func New(websiteRepository ports.RedisRepository) *service {
-
-	return &service{
+	service := &service{
 		redisRepository: websiteRepository,
 	}
+	service.init()
+	return service
 }
 
-func (srv *service) Init() {
+func (srv *service) init() {
 	srv.sites = make(domain.Websites, 0)
 	//load old data
 	srv.Load()
@@ -39,7 +39,7 @@ func (srv *service) Init() {
 		log.Fatalf("error: %v", err)
 	}
 	for _, v := range websites.Websites {
-		if !utils.Contains(srv.sites, v.URL) {
+		if !domain.Contains(srv.sites, v.URL) {
 			srv.sites = append(srv.sites, domain.Website{URL: v.URL, Shop: v.Shop, Type: v.Type, Ram: v.Ram})
 		}
 	}
@@ -111,8 +111,8 @@ func (srv *service) CheckForChanges() domain.Websites {
 	oldPiList := New(srv.redisRepository)
 	oldPiList.Load()
 	for _, v := range srv.sites {
-		if utils.Contains(oldPiList.sites, v.URL) {
-			item := utils.GetByUrl(oldPiList.sites, v.URL)
+		if domain.Contains(oldPiList.sites, v.URL) {
+			item := domain.GetByUrl(oldPiList.sites, v.URL)
 			if item.InStock != v.InStock {
 				if v.InStock {
 					updatedValues = append(updatedValues, v)

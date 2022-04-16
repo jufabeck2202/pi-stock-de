@@ -11,8 +11,8 @@ import (
 type webhook struct {
 }
 
-func NewWebhook() *webhook {
-	return &webhook{}
+func NewWebhook() webhook {
+	return webhook{}
 }
 
 func (p webhook) Send(recipient domain.Recipient, item domain.Website) error {

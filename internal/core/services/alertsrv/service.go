@@ -55,3 +55,4 @@ func (srv *service) DeleteTask(urls []string, recipient domain.Recipient, platfo
 	}
 	return numberOfDeletedTasks
 }
+

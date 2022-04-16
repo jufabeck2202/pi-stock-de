@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gocolly/colly"
@@ -19,7 +18,19 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 
-	"github.com/jufabeck2202/piScraper/messaging"
+	"github.com/jufabeck2202/piScraper/internal/adaptors"
+	"github.com/jufabeck2202/piScraper/internal/core/domain"
+	"github.com/jufabeck2202/piScraper/internal/core/ports"
+	"github.com/jufabeck2202/piScraper/internal/core/services/alertsrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/captchasrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/notificationsrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/validatesrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/websitesrv"
+	"github.com/jufabeck2202/piScraper/internal/handlers"
+	"github.com/jufabeck2202/piScraper/internal/repositories/platforms/mail"
+	"github.com/jufabeck2202/piScraper/internal/repositories/platforms/pushover"
+	"github.com/jufabeck2202/piScraper/internal/repositories/platforms/webhook.go"
+	"github.com/jufabeck2202/piScraper/internal/repositories/redis"
 )
 
 /*
@@ -36,14 +47,20 @@ func main() {
 	}
 
 	// Initialize the app
+	redisRepository, err := redis.NewRedisRepository()
+	if err != nil {
+		panic("Could not connect to redis")
+	}
+	websiteService := websitesrv.New(redisRepository)
+	alertService := alertsrv.New(redisRepository)
+	captchaService, err := captchasrv.New()
+	if err != nil {
+		panic("Could not connect to captcha service")
+	}
+	validateService := validatesrv.New()
 
-	redisRepository, err := beju.NewRedisRepository(os.Getenv("REDIS_URL"))
-	// websiteService := websitesrv.New()
-	// alertService := alertsrv.New()
 	// logEnv()
-	go startScraper()
-
-	go messaging.Init()
+	go startScraper(websiteService, alertService)
 
 	app := fiber.New()
 	app.Use(helmet.New())
@@ -63,7 +80,7 @@ func main() {
 			})
 		},
 	}))
-	// // Used for local testing
+	// Used for local testing
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:3000",
 		AllowHeaders: "Origin, Content-Type, Accept",
@@ -73,34 +90,42 @@ func main() {
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
 
+	//controllers
+	getController := handlers.NewGetHandler(websiteService)
+	alertController := handlers.NewAlertHandler(websiteService, validateService, captchaService, alertService)
+	deleteController := handlers.NewDeleteHandler(websiteService, validateService, captchaService, alertService)
+
 	//routes
 	app.Static("/", "./frontend/build")
-	app.Get("/api/v1/status", routes.GetTasksController)
-	app.Post("/api/v1/alert", routes.AddTaskController)
-	app.Delete("/api/v1/alert/", routes.DeleteTaskController)
+	app.Get("/api/v1/status", getController.Get)
+	app.Post("/api/v1/alert", alertController.Post)
+	app.Delete("/api/v1/alert/", deleteController.Delete)
 
 	app.Listen(":3001")
 }
 
-func startScraper() {
-	routes.Websites.Init()
+func startScraper(websiteService ports.WebsiteService, alertService ports.AlertService) {
+	mailService := mail.NewMail()
+	pushoverServie := pushover.NewPushover()
+	webhookService := webhook.NewWebhook()
+	notificationService := notificationsrv.NewNotificationService(,)
 	c := cron.New()
-	searchPi(true)
+	searchPi(true, websiteService, alertService)
 	c.AddFunc("*/5 * * * *", func() {
-		searchPi(false)
+		searchPi(false, websiteService, alertService)
 	})
 	c.Start()
 }
 
-func searchPi(firstRun bool) {
-	adaptorsList := make([]adaptors.Adaptor, 0)
-	routes.Websites.Load()
+func searchPi(firstRun bool, websiteService ports.WebsiteService, alertService ports.AlertService) {
+	adaptorsList := make([]ports.Adaptor, 0)
+	websiteService.Load()
 	c := colly.NewCollector(
 		colly.Async(true),
 	)
-	adaptorsList = append(adaptorsList, adaptors.NewBechtle(c), adaptors.NewRappishop(c), adaptors.NewOkdo(c), adaptors.NewBerryBase(c), adaptors.NewSemaf(c), adaptors.NewBuyZero(c), adaptors.NewELV(c), adaptors.NewWelectron(c), adaptors.NewPishop(c), adaptors.NewFunk24(c), adaptors.NewReichelt(c))
+	adaptorsList = append(adaptorsList, adaptors.NewBechtle(c, websiteService), adaptors.NewRappishop(c, websiteService), adaptors.NewOkdo(c, websiteService), adaptors.NewBerryBase(c, websiteService), adaptors.NewSemaf(c, websiteService), adaptors.NewBuyZero(c, websiteService), adaptors.NewELV(c, websiteService), adaptors.NewWelectron(c, websiteService), adaptors.NewPishop(c, websiteService), adaptors.NewFunk24(c, websiteService), adaptors.NewReichelt(c, websiteService))
 	for _, site := range adaptorsList {
-		site.Run(routes.Websites)
+		site.Run()
 	}
 
 	for _, site := range adaptorsList {
@@ -108,26 +133,25 @@ func searchPi(firstRun bool) {
 	}
 
 	if !firstRun {
-		changes := routes.Websites.CheckForChanges()
+		changes := websiteService.CheckForChanges()
 		if len(changes) > 0 {
 			log.Println("Found Updates: ", len(changes))
-			scheduleUpdates(changes)
+			scheduleUpdates(changes, alertService)
 		}
 	}
-	routes.Websites.Save()
+	websiteService.Save()
 }
 
-func scheduleUpdates(websites []utils.Website) {
-	tasksToSchedule := []types.AlertTask{}
+func scheduleUpdates(websites domain.Websites, alertService ports.AlertService) {
+	tasksToSchedule := make([]domain.AlertTask, len(websites))
 
 	for _, w := range websites {
 		log.Printf("%s changed \n", w.URL)
-		alert := routes.AlertManager.LoadAlerts(w.URL)
+		alert := alertService.LoadAlerts(w.URL)
 		for _, t := range alert {
-			tasksToSchedule = append(tasksToSchedule, types.AlertTask{Website: w, Recipient: t.Recipient, Destination: t.Destination})
+			tasksToSchedule = append(tasksToSchedule, domain.AlertTask{Website: w, Recipient: t.Recipient, Destination: t.Destination})
 			log.Printf("scheduling update for %s and %s \n", w.URL, t.Recipient)
 		}
 	}
 	log.Println("Found websites to update: ", len(tasksToSchedule))
-	messaging.AddToQueue(tasksToSchedule)
 }

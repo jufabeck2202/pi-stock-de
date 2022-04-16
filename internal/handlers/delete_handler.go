@@ -5,8 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/jufabeck2202/piScraper/internal/core/domain"
 	"github.com/jufabeck2202/piScraper/internal/core/ports"
-	"github.com/jufabeck2202/piScraper/messaging/types"
 )
 
 type DeleteHandler struct {
@@ -17,9 +17,9 @@ type DeleteHandler struct {
 }
 
 type DeleteTask struct {
-	Recipient   types.Recipient `json:"recipient" validate:"dive,required"`
-	Destination types.Platform  `json:"destination" validate:"required"`
-	Capcha      string          `json:"captcha" validate:"required"`
+	Recipient   domain.Recipient `json:"recipient" validate:"dive,required"`
+	Destination domain.Platform  `json:"destination" validate:"required"`
+	Capcha      string           `json:"captcha" validate:"required"`
 }
 
 func NewDeleteHandler(websiteService ports.WebsiteService, validatorService ports.ValidateService, captchaService ports.CaptchaService, alertService ports.AlertService) *DeleteHandler {

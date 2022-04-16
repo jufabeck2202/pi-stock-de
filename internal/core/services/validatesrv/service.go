@@ -3,7 +3,7 @@ package validatesrv
 import (
 	"github.com/go-playground/validator/v10"
 
-	"github.com/jufabeck2202/piScraper/messaging/types"
+	"github.com/jufabeck2202/piScraper/internal/core/domain"
 )
 
 type service struct {
@@ -17,12 +17,12 @@ func New() *service {
 	}
 }
 
-func (srv *service) Validate(input interface{}) []*types.ErrorResponse {
-	var errors []*types.ErrorResponse
+func (srv *service) Validate(input interface{}) []*domain.ErrorResponse {
+	var errors []*domain.ErrorResponse
 	err := srv.validator.Struct(input)
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			var element types.ErrorResponse
+			var element domain.ErrorResponse
 			element.FailedField = err.StructNamespace()
 			element.Tag = err.Tag()
 			element.Value = err.Param()

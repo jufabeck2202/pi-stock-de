@@ -5,12 +5,12 @@ import (
 )
 
 type WebsiteService interface {
-	GetList() []domain.Website
+	GetList() domain.Websites
 	GetAllUrls() []string
 	GetUrls(shop string) []string
 	GetItemById(url string) domain.Website
 	UpdateItemInList(item domain.Website)
-	Init()
+	CheckForChanges() domain.Websites
 	Load()
 	Save()
 }
@@ -41,6 +41,6 @@ type MessagingPlatform interface {
 }
 
 type Adaptor interface {
-	Run(list domain.Websites)
+	Run()
 	Wait()
 }

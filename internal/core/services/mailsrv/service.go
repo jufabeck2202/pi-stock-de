@@ -4,12 +4,14 @@ import (
 	"log"
 	"time"
 
+	mail "github.com/xhit/go-simple-mail/v2"
+
 	"github.com/jufabeck2202/piScraper/internal/core/ports"
-	"github.com/jufabeck2202/piScraper/messaging/platforms"
 )
 
 type service struct {
 	redisRepository ports.RedisRepository
+	server          *mail.SMTPServer
 }
 
 func New(redisRepository ports.RedisRepository) *service {
@@ -27,7 +29,7 @@ func (srv *service) NewEmailSubscriber(email string) error {
 	if err != nil {
 		return err
 	}
-	mail := platforms.Mail{}
+	mail := mail.Mail{}
 	err = mail.SendVerificationMail(email)
 	if err != nil {
 		return err

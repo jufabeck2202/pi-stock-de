@@ -1,4 +1,4 @@
-package beju
+package redis
 
 import (
 	"context"
@@ -14,7 +14,7 @@ type repository struct {
 	redisClient *redis.Client
 }
 
-func (r *repository) NewRedisRepository() (*repository, error) {
+func NewRedisRepository() (*repository, error) {
 	// Define Redis database number.
 
 	// Set Redis options.

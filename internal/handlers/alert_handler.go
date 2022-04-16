@@ -5,14 +5,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/jufabeck2202/piScraper/internal/core/domain"
 	"github.com/jufabeck2202/piScraper/internal/core/ports"
-	"github.com/jufabeck2202/piScraper/messaging"
-	"github.com/jufabeck2202/piScraper/messaging/types"
 )
 
 type AddTasks struct {
-	Tasks  []types.AlertTask `json:"tasks" validate:"dive,required"`
-	Capcha string            `json:"captcha" validate:"required"`
+	Tasks  []domain.AlertTask `json:"tasks" validate:"dive,required"`
+	Capcha string             `json:"captcha" validate:"required"`
 }
 
 type AlertHandler struct {
@@ -68,7 +67,7 @@ func (hdl *AlertHandler) Post(c *fiber.Ctx) error {
 	}
 	//Add task to alert
 	for _, t := range addTasks.Tasks {
-		hdl.alertService.AddAlert(t.Website.URL, messaging.Task{Recipient: t.Recipient.SanitizedRecipient(), Destination: t.Destination})
+		hdl.alertService.AddAlert(t.Website.URL, domain.Alert{Recipient: t.Recipient.SanitizedRecipient(), Destination: t.Destination})
 	}
 	log.Println("Added new Notification")
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
