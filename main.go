@@ -10,7 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
@@ -64,6 +64,7 @@ func main() {
 	}
 	websiteService = websitesrv.New(redisRepository)
 	alertService = alertsrv.New(redisRepository)
+	mailService = mailsrv.New(redisRepository)
 	captchaService, err = captchasrv.New()
 	if err != nil {
 		panic("Could not connect to captcha service")
@@ -78,19 +79,10 @@ func main() {
 	app.Use(compress.New())
 	app.Use(etag.New())
 	app.Use(favicon.New())
-	// app.Use(logger.New())
+	app.Use(logger.New())
 	app.Use(recover.New())
 	app.Use(requestid.New())
 
-	app.Use(limiter.New(limiter.Config{
-		Max: 100,
-		LimitReached: func(c *fiber.Ctx) error {
-			return c.Status(fiber.StatusTooManyRequests).JSON(&fiber.Map{
-				"status":  "fail",
-				"message": "Too many request",
-			})
-		},
-	}))
 	// Used for local testing
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:3000",
@@ -103,14 +95,23 @@ func main() {
 
 	//controllers
 	getController := handlers.NewGetHandler(websiteService)
-	alertController := handlers.NewAlertHandler(websiteService, validateService, captchaService, alertService)
+	alertController := handlers.NewAlertHandler(websiteService, validateService, captchaService, alertService, mailService)
 	deleteController := handlers.NewDeleteHandler(websiteService, validateService, captchaService, alertService)
 	rssController := handlers.NewRssHandler(websiteService)
+	verifyController := handlers.NewVerifMailHandler(mailService)
 
 	//routes
-	app.Static("/", "./frontend/build")
+	app.Static("/", "./frontend/build", fiber.Static{
+		CacheDuration: 0,
+		MaxAge:        0,
+	})
+	app.Static("/verify/*", "./frontend/build", fiber.Static{
+		CacheDuration: 0,
+		MaxAge:        0,
+	})
 	app.Get("/api/v1/status", getController.Get)
 	app.Get("/rss", rssController.Get)
+	app.Get("/api/v1/verify/:email", verifyController.Get)
 	app.Post("/api/v1/alert", alertController.Post)
 	app.Delete("/api/v1/alert/", deleteController.Delete)
 
@@ -118,7 +119,6 @@ func main() {
 }
 
 func startScraper() {
-	mailService = mailsrv.New(redisRepository)
 	pushoverServie := pushover.NewPushover()
 	webhookService := webhook.NewWebhook()
 	notificationService = notificationsrv.NewNotificationService(mailService, pushoverServie, webhookService)

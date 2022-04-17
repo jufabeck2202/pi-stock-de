@@ -45,6 +45,21 @@ func (r *repository) Get(key string, dest interface{}) error {
 	return json.Unmarshal(p, dest)
 }
 
+func (r *repository) Exists(key string) bool {
+	data := r.redisClient.Get(context.Background(), key)
+	if data.Err() != nil {
+		return false
+	}
+	response, err := data.Result()
+	if err != nil {
+		return false
+	}
+	if response == "" {
+		return false
+	}
+	return true
+}
+
 func (r *repository) GetBool(key string) bool {
 	data := r.redisClient.Get(context.Background(), key)
 	verified, err := data.Bool()

@@ -2,7 +2,12 @@ package mailsrv
 
 import (
 	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -14,7 +19,6 @@ import (
 
 	"github.com/jufabeck2202/piScraper/internal/core/domain"
 	"github.com/jufabeck2202/piScraper/internal/core/ports"
-	"github.com/jufabeck2202/piScraper/utils"
 )
 
 type service struct {
@@ -43,19 +47,26 @@ func New(redisRepository ports.RedisRepository) *service {
 	}
 }
 
-func (srv *service) Verify(email string) error {
-	err := srv.redisRepository.Set(email, true, 0)
+func (srv *service) Verify(email string) (string, error) {
+	decytedEmail := Decrypt(email)
+	exists := srv.redisRepository.Exists(decytedEmail)
+	if !exists {
+		return "", fmt.Errorf("email not found")
+	}
+	err := srv.redisRepository.Set(decytedEmail, true, 0)
 	if err != nil {
 		log.Println("error Mail Verifier empty: ", err)
-		return err
+		return "", err
 	}
-	return nil
+	return decytedEmail, nil
 }
 
+// Check if email is verified
 func (srv *service) IsVerified(email string) bool {
 	return srv.redisRepository.GetBool(email)
 }
 
+//Adds temporary redis entry with email and generates verificaiton email
 func (srv *service) NewEmailSubscriber(email string) error {
 	err := srv.createRedisEntry(email)
 	if err != nil {
@@ -70,7 +81,8 @@ func (srv *service) NewEmailSubscriber(email string) error {
 }
 
 func (srv *service) createRedisEntry(email string) error {
-	err := srv.redisRepository.Set(email, false, 300*time.Second)
+	log.Println("creating redis entry", email)
+	err := srv.redisRepository.Set(email, false, time.Hour*24*2)
 	if err != nil {
 		log.Println("error Mail Verifier empty: ", err)
 		return err
@@ -80,12 +92,12 @@ func (srv *service) createRedisEntry(email string) error {
 
 func (srv *service) unsubscribeLinkBuilder(email string) string {
 
-	return "https://" + os.Getenv("HOST_URL") + "/unsubscribe/" + utils.Encrypt(email)
+	return "https://" + os.Getenv("HOST_URL") + "/unsubscribe/" + Encrypt(email)
 
 }
 func (srv *service) verifyLinkBuilder(email string) string {
 
-	return "https://" + os.Getenv("HOST_URL") + "/verify/" + utils.Encrypt(email)
+	return "https://" + os.Getenv("HOST_URL") + "/verify/" + Encrypt(email)
 
 }
 func (srv *service) Send(recipient domain.Recipient, item domain.Website) error {
@@ -123,6 +135,7 @@ func (srv *service) Send(recipient domain.Recipient, item domain.Website) error 
 var lock = sync.Mutex{}
 
 func (srv *service) SendVerificationMail(newEmail string) error {
+	log.Println("creating redis entry")
 	lock.Lock()
 	smtpClient, err := srv.server.Connect()
 	if err != nil {
@@ -182,3 +195,70 @@ var verifyEmail = `
    <P>To Verify click the following link: {{.Link}}</P>
 </body>
 `
+
+func Encrypt(input string) string {
+
+	text := []byte(input)
+	// generate a new aes cipher using our 32 byte long key
+	c, err := aes.NewCipher([]byte(os.Getenv("ENCRYPTION_KEY")))
+	// if there are any errors, handle them
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// gcm or Galois/Counter Mode, is a mode of operation
+	// for symmetric key cryptographic block ciphers
+	// - https://en.wikipedia.org/wiki/Galois/Counter_Mode
+	gcm, err := cipher.NewGCM(c)
+	// if any error generating new GCM
+	// handle them
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// creates a new byte array the size of the nonce
+	// which must be passed to Seal
+	nonce := make([]byte, gcm.NonceSize())
+	// populates our nonce with a cryptographically secure
+	// random sequence
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		fmt.Println(err)
+	}
+
+	// here we encrypt our text using the Seal function
+	// Seal encrypts and authenticates plaintext, authenticates the
+	// additional data and appends the result to dst, returning the updated
+	// slice. The nonce must be NonceSize() bytes long and unique for all
+	// time, for a given key.
+	return base64.RawURLEncoding.EncodeToString(gcm.Seal(nonce, nonce, text, nil))
+}
+
+func Decrypt(input string) string {
+	data, err := base64.RawURLEncoding.DecodeString(input)
+	if err != nil {
+		log.Fatal("error:", err)
+	}
+	cypher := []byte(data)
+
+	c, err := aes.NewCipher([]byte(os.Getenv("ENCRYPTION_KEY")))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	gcm, err := cipher.NewGCM(c)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	nonceSize := gcm.NonceSize()
+	if len(cypher) < nonceSize {
+		fmt.Println(err)
+	}
+
+	nonce, ciphertext := cypher[:nonceSize], cypher[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return string(plaintext)
+}

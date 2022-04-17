@@ -15,6 +15,8 @@ import { Sun, MoonStars, BrandGithub } from "tabler-icons-react";
 import StartPage from "./startPage/StartPage";
 import { Logo } from "./Logo";
 import { NotificationsProvider } from "@mantine/notifications";
+import { Routes, Route } from "react-router-dom";
+import VerifyPage from "./VerifyMail/VerifyPage";
 
 const queryClient = new QueryClient();
 function App() {
@@ -78,7 +80,10 @@ function App() {
                 },
               })}
             >
-              <StartPage />
+              <Routes>
+                <Route path="/" element={<StartPage />} />
+                <Route path="/verify/:email" element={<VerifyPage />} />
+              </Routes>
             </AppShell>
             <ReactQueryDevtools />
           </QueryClientProvider>

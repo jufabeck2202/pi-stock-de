@@ -19,15 +19,17 @@ type AlertHandler struct {
 	validatorService ports.ValidateService
 	captchaService   ports.CaptchaService
 	alertService     ports.AlertService
+	emailService     ports.MailService
 }
 
-func NewAlertHandler(websiteService ports.WebsiteService, validatorService ports.ValidateService, captchaService ports.CaptchaService, alertService ports.AlertService) *AlertHandler {
+func NewAlertHandler(websiteService ports.WebsiteService, validatorService ports.ValidateService, captchaService ports.CaptchaService, alertService ports.AlertService, emailService ports.MailService) *AlertHandler {
 
 	return &AlertHandler{
 		websiteService:   websiteService,
 		validatorService: validatorService,
 		captchaService:   captchaService,
 		alertService:     alertService,
+		emailService:     emailService,
 	}
 }
 
@@ -65,6 +67,35 @@ func (hdl *AlertHandler) Post(c *fiber.Ctx) error {
 			})
 		}
 	}
+	//check if email should be verified
+	containsEmail := false
+	emails := make([]string, 0)
+	for _, t := range addTasks.Tasks {
+		if t.Recipient.Email != "" && t.Destination == domain.Mail {
+			containsEmail = true
+			emails = append(emails, t.Recipient.Email)
+		}
+	}
+	//email needs to be verified
+	if containsEmail {
+
+		//check if all emails are the same
+		if !sameEmails(emails) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": true,
+				"msg":   "all emails need to be the same",
+			})
+		}
+
+		//check if email is verified
+		if !hdl.emailService.IsVerified(emails[0]) {
+			//email needs to be verified
+			log.Println("error: ", "email needs to be verified")
+			hdl.emailService.NewEmailSubscriber(emails[0])
+		}
+
+	}
+
 	//Add task to alert
 	for _, t := range addTasks.Tasks {
 		hdl.alertService.AddAlert(t.Website.URL, domain.Alert{Recipient: t.Recipient.SanitizedRecipient(), Destination: t.Destination})
@@ -72,7 +103,16 @@ func (hdl *AlertHandler) Post(c *fiber.Ctx) error {
 	log.Println("Added new Notification")
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"error": false,
-		"msg":   "task added",
+		"msg":   "task added, will be notified, if email is verified",
 	})
 
+}
+
+func sameEmails(a []string) bool {
+	for i := 1; i < len(a); i++ {
+		if a[i] != a[0] {
+			return false
+		}
+	}
+	return true
 }

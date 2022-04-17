@@ -68,7 +68,7 @@ const deleteTasks = async (data: DeleteTask): Promise<number> => {
   throw new Error("Error Deleting Tasks");
 };
 
-function StartPage() {
+function StartPage(): JSX.Element {
   const { mutateAsync: addNotifcations } = useMutation(createTasks, {
     onSuccess: async (data, input) => {
       notifications.showNotification({
