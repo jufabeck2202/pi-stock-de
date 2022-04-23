@@ -1,6 +1,17 @@
 # Pi-Stock DE
 > Monitor and get notified if raspberry pis are available in german stores
 
+## Build Using
+- Backend:
+  - Golang (hexagonal pattern)
+  - Colly
+  - fiber
+- Frontend:
+  - React
+  - Mantine
+  - React-Fetch
+  - Typescript  
+
 ## Monitored Stores
 - Bechtle
 - BerryBase
