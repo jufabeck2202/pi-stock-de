@@ -1,4 +1,6 @@
 # Pi-Stock DE
+<img src="https://github.com/julianfbeck/pi-stock-de/blob/main/frontend/public/android-chrome-512x512.png" height="100">
+
 > Monitor and get notified if raspberry pis are available in german stores
 
 ## Build Using
