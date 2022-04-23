@@ -63,7 +63,7 @@ func main() {
 		panic("Could not connect to redis")
 	}
 	websiteService = websitesrv.New(redisRepository)
-	alertService = alertsrv.New(redisRepository)
+	alertService = alertsrv.New(redisRepository, websiteService)
 	mailService = mailsrv.New(redisRepository)
 	captchaService, err = captchasrv.New()
 	if err != nil {
@@ -99,6 +99,7 @@ func main() {
 	deleteController := handlers.NewDeleteHandler(websiteService, validateService, captchaService, alertService)
 	rssController := handlers.NewRssHandler(websiteService)
 	verifyController := handlers.NewVerifMailHandler(mailService)
+	unsubscribeController := handlers.NewUnsubscribeMailHandler(alertService, mailService)
 
 	//routes
 	app.Static("/", "./frontend/build", fiber.Static{
@@ -109,12 +110,16 @@ func main() {
 		CacheDuration: 0,
 		MaxAge:        0,
 	})
+	app.Static("/unsubscribe/*", "./frontend/build", fiber.Static{
+		CacheDuration: 0,
+		MaxAge:        0,
+	})
 	app.Get("/api/v1/status", getController.Get)
 	app.Get("/rss", rssController.Get)
 	app.Get("/api/v1/verify/:email", verifyController.Get)
+	app.Get("/api/v1/unsubscribe/:email", unsubscribeController.Get)
 	app.Post("/api/v1/alert", alertController.Post)
 	app.Delete("/api/v1/alert/", deleteController.Delete)
-
 	app.Listen(":3001")
 }
 

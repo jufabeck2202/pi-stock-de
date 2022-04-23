@@ -8,11 +8,13 @@ import (
 type service struct {
 	tasks           []domain.AlertTask
 	alertRepository ports.RedisRepository
+	websiteService  ports.WebsiteService
 }
 
-func New(alertRepository ports.RedisRepository) *service {
+func New(alertRepository ports.RedisRepository, websiteService ports.WebsiteService) *service {
 	return &service{
 		alertRepository: alertRepository,
+		websiteService:  websiteService,
 		tasks:           make([]domain.AlertTask, 0),
 	}
 }
@@ -56,3 +58,19 @@ func (srv *service) DeleteTask(urls []string, recipient domain.Recipient, platfo
 	return numberOfDeletedTasks
 }
 
+func (srv *service) RemoveEmailAlert(email string) int {
+	//deletes all tasks for the given email
+
+	numberOfDeletedTasks := 0
+	for _, url := range srv.websiteService.GetAllUrls() {
+		tasks := srv.LoadAlerts(url)
+		for i, task := range tasks {
+			if task.Recipient.Email == email {
+				tasks = append(tasks[:i], tasks[i+1:]...)
+				numberOfDeletedTasks += 1
+			}
+		}
+		srv.SaveAlerts(url, tasks)
+	}
+	return numberOfDeletedTasks
+}

@@ -30,6 +30,13 @@ type VerifyEmailTemplate struct {
 	Email string
 	Link  string
 }
+type SendEmailTemplate struct {
+	Name            string
+	Shop            string
+	URL             string
+	PriceString     string
+	UnsubscribeLink string
+}
 
 func New(redisRepository ports.RedisRepository) *service {
 	server := mail.NewSMTPClient()
@@ -48,7 +55,7 @@ func New(redisRepository ports.RedisRepository) *service {
 }
 
 func (srv *service) Verify(email string) (string, error) {
-	decytedEmail := Decrypt(email)
+	decytedEmail := srv.Decrypt(email)
 	exists := srv.redisRepository.Exists(decytedEmail)
 	if !exists {
 		return "", fmt.Errorf("email not found")
@@ -80,6 +87,10 @@ func (srv *service) NewEmailSubscriber(email string) error {
 
 }
 
+func (srv *service) Delete(email string) error {
+	return srv.redisRepository.Del(email)
+}
+
 func (srv *service) createRedisEntry(email string) error {
 	log.Println("creating redis entry", email)
 	err := srv.redisRepository.Set(email, false, time.Hour*24*2)
@@ -92,12 +103,12 @@ func (srv *service) createRedisEntry(email string) error {
 
 func (srv *service) unsubscribeLinkBuilder(email string) string {
 
-	return "https://" + os.Getenv("HOST_URL") + "/unsubscribe/" + Encrypt(email)
+	return "https://" + os.Getenv("HOST_URL") + "/unsubscribe/" + srv.Encrypt(email)
 
 }
 func (srv *service) verifyLinkBuilder(email string) string {
 
-	return "https://" + os.Getenv("HOST_URL") + "/verify/" + Encrypt(email)
+	return "https://" + os.Getenv("HOST_URL") + "/verify/" + srv.Encrypt(email)
 
 }
 func (srv *service) Send(recipient domain.Recipient, item domain.Website) error {
@@ -117,7 +128,14 @@ func (srv *service) Send(recipient domain.Recipient, item domain.Website) error 
 
 	temp := template.New("t1")
 	temp.Parse(inStockBody)
-	err = temp.Execute(&tpl, item)
+	templateData := SendEmailTemplate{
+		Name:            item.Name,
+		Shop:            item.Shop,
+		URL:             item.URL,
+		PriceString:     item.PriceString,
+		UnsubscribeLink: srv.unsubscribeLinkBuilder(recipient.Email),
+	}
+	err = temp.Execute(&tpl, templateData)
 	if err != nil {
 		return err
 	}
@@ -180,7 +198,7 @@ var inStockBody = `
 <body>
 <h1>The Pi {{.Name}} is availabe for {{.PriceString}}!</h1>
    <p>Check it out here: {{.URL}}</p>
-   <P> To Unsubscribe visit https://pi.juli.sh, click the Unsubscribe-Button and enter your Email adress</P>
+   <P> To Unsubscribe visit {{.UnsubscribeLink}}</P>
 </body>
 `
 
@@ -196,7 +214,7 @@ var verifyEmail = `
 </body>
 `
 
-func Encrypt(input string) string {
+func (srv *service) Encrypt(input string) string {
 
 	text := []byte(input)
 	// generate a new aes cipher using our 32 byte long key
@@ -233,7 +251,7 @@ func Encrypt(input string) string {
 	return base64.RawURLEncoding.EncodeToString(gcm.Seal(nonce, nonce, text, nil))
 }
 
-func Decrypt(input string) string {
+func (srv *service) Decrypt(input string) string {
 	data, err := base64.RawURLEncoding.DecodeString(input)
 	if err != nil {
 		log.Fatal("error:", err)

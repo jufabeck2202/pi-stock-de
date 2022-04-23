@@ -7,4 +7,5 @@ type RedisRepository interface {
 	Set(key string, value interface{}, ttl time.Duration) error
 	GetBool(key string) bool
 	Exists(key string) bool
+	Del(key string) error
 }

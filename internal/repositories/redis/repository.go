@@ -45,6 +45,11 @@ func (r *repository) Get(key string, dest interface{}) error {
 	return json.Unmarshal(p, dest)
 }
 
+//delete
+func (r *repository) Del(key string) error {
+	return r.redisClient.Del(context.Background(), key).Err()
+}
+
 func (r *repository) Exists(key string) bool {
 	data := r.redisClient.Get(context.Background(), key)
 	if data.Err() != nil {

@@ -3,6 +3,7 @@ import { PiTable } from "./PiTable";
 import { AlertType } from "./AlertForm";
 import { useNotifications } from "@mantine/notifications";
 import { Check, X } from "tabler-icons-react";
+import { FooterCentered } from "../footer";
 
 export type Website = {
   id: string;

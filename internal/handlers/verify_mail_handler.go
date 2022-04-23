@@ -8,17 +8,17 @@ import (
 	"github.com/jufabeck2202/piScraper/internal/core/ports"
 )
 
-type VerifMailHandler struct {
+type VerifyEmailHandler struct {
 	mailService ports.MailService
 }
 
-func NewVerifMailHandler(mailService ports.MailService) *VerifMailHandler {
-	return &VerifMailHandler{
+func NewVerifMailHandler(mailService ports.MailService) *VerifyEmailHandler {
+	return &VerifyEmailHandler{
 		mailService: mailService,
 	}
 }
 
-func (hdl *VerifMailHandler) Get(c *fiber.Ctx) error {
+func (hdl *VerifyEmailHandler) Get(c *fiber.Ctx) error {
 	fmt.Println(c.Params("email"))
 	email := c.Params("email")
 	decytedEmail, err := hdl.mailService.Verify(email)

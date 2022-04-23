@@ -28,6 +28,7 @@ type AlertService interface {
 	AddAlert(url string, alert domain.Alert)
 	SaveAlerts(url string, alerts []domain.Alert)
 	DeleteTask(urls []string, recipient domain.Recipient, platform domain.Platform) int
+	RemoveEmailAlert(email string) int
 }
 
 type MailService interface {
@@ -36,6 +37,8 @@ type MailService interface {
 	Verify(email string) (string, error)
 	Send(recipient domain.Recipient, item domain.Website) error
 	SendVerificationMail(newEmail string) error
+	Decrypt(encryptedEmail string) string
+	Delete(email string) error
 }
 
 type MessagingPlatform interface {
