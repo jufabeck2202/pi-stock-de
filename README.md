@@ -33,10 +33,9 @@
 
 ## Planned Features:
 - [x] Delete-Route to enable users to unsubscribe from Notifications
-- [ ] Add more notification Services
+- [x] Add more notification Services
   - [ ] Web-Push-Notifications
-  - [ ] Add RSS-Feed
-- [ ] Make more generic fork
+  - [x] Add RSS-Feed
 - [x] Protect Create-Notification Route with Captcha
 - [x] New Custom Fav-Icon
 
