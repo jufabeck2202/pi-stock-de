@@ -29,7 +29,7 @@
 ## Get Notified using
 - Webhooks
 - Email
-- Pushover
+- [Pushover](https://pushover.net/)
 
 ## Planned Features:
 - [x] Delete-Route to enable users to unsubscribe from Notifications
