@@ -40,15 +40,15 @@ websites:
     ram: 8
     shop: berrybase
   - url: https://www.berrybase.de/neu/raspberry-pi-4-computer-modell-b-4gb-ram-light-starter-kit-wei-223?c=2383
-    type: Pi 4 
+    type: Pi 4
     ram: 4
     shop: berrybase
   - url: https://www.berrybase.de/raspberry-pi/raspberry-pi-computer/kits/raspberry-pi-4-computer-modell-b-8gb-ram-full-armor-kit?c=2383
-    type: Pi 4 
+    type: Pi 4
     ram: 8
     shop: berrybase
   - url: https://www.berrybase.de/neu/raspberry-pi-4-computer-modell-b-4gb-light-starter-set?c=2383
-    type: Pi 4 
+    type: Pi 4
     ram: 4
     shop: berrybase
   - url: https://electronics.semaf.at/Raspberry-Pi-4-B-4x-15GHz-CPU-4GB-RAM-Bluetooth-5-WLAN
@@ -114,25 +114,26 @@ websites:
     ram: 8
     shop: elv
     #welectron
-  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-1-GB-RAM
+
+  - url: https://www.welectron.com/Raspberry-Pi-4-B-1-GB
     type: Pi 4
     ram: 1
     shop: welectron
-  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-2-GB-RAM
+  - url: https://www.welectron.com/Raspberry-Pi-4-B-2-GB
     type: Pi 4
     ram: 2
     shop: welectron
-  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-4-GB-RAM
+  - url: https://www.welectron.com/Raspberry-Pi-4-B-4-GB
     type: Pi 4
     ram: 4
     shop: welectron
-  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-4-GB-RAM
-    type: Pi 4
-    ram: 4
-    shop: welectron
-  - url: https://www.welectron.com/Raspberry-Pi-4-8-GB-Board
+  - url: https://www.welectron.com/Raspberry-Pi-4-B-8-GB
     type: Pi 4
     ram: 8
+    shop: welectron
+  - url: https://www.welectron.com/Raspberry-Pi-4-Modell-B-4-GB-RAM
+    type: Pi 4
+    ram: 4
     shop: welectron
     #pichop.ch
   - url: https://www.pi-shop.ch/raspberry-pi-4-model-b-1gb
@@ -291,7 +292,7 @@ websites:
     type: Pi 3B+
     ram: 4
     shop: rappishop
-#Bechtle
+  #Bechtle
   - url: https://www.bechtle.com/shop/raspberry-pi4-model-b-2gb-einplatinen-pc--4390756--p
     type: Pi 4
     ram: 2

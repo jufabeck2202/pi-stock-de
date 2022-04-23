@@ -2,7 +2,8 @@ import { useMutation, useQuery } from "react-query";
 import { PiTable } from "./PiTable";
 import { AlertType } from "./AlertForm";
 import { useNotifications } from "@mantine/notifications";
-import { Check } from "tabler-icons-react";
+import { Check, X } from "tabler-icons-react";
+import { FooterCentered } from "../footer";
 
 export type Website = {
   id: string;
@@ -68,8 +69,8 @@ const deleteTasks = async (data: DeleteTask): Promise<number> => {
   throw new Error("Error Deleting Tasks");
 };
 
-function StartPage() {
-  const { mutate: addNotifcations } = useMutation(createTasks, {
+function StartPage(): JSX.Element {
+  const { mutateAsync: addNotifcations } = useMutation(createTasks, {
     onSuccess: async (data, input) => {
       notifications.showNotification({
         title: "Successfully Subscribed",
@@ -78,10 +79,18 @@ function StartPage() {
         icon: <Check />,
       });
     },
+    onError: async (error) => {
+      console.log(error);
+      notifications.showNotification({
+        title: "Error disabeling Notifications",
+        message: `${error}`,
+        color: "red",
+        icon: <X />,
+      });
+    },
   });
-  const { mutate: deleteNotifications } = useMutation(deleteTasks, {
+  const { mutateAsync: deleteNotifications } = useMutation(deleteTasks, {
     onSuccess: async (data) => {
-      console.log(data);
       notifications.showNotification({
         title: "Successfully disabled all Notification",
         message: `Notifications for ${data} Item's removed `,
@@ -90,19 +99,19 @@ function StartPage() {
       });
     },
     onError: async (error) => {
+      console.log(error);
       notifications.showNotification({
         title: "Error disabeling Notifications",
-        message: `Error: ${error}`,
-        color: "green",
-        icon: <Check />,
+        message: `${error}`,
+        color: "red",
+        icon: <X />,
       });
     },
   });
   const notifications = useNotifications();
   const { isLoading, error, data } = useQuery<Website[]>(
     "status",
-    () =>
-      fetch("/api/v1/status").then((res) => res.json()),
+    () => fetch("/api/v1/status").then((res) => res.json()),
     {
       refetchOnWindowFocus: true,
       refetchInterval: 10000,
@@ -118,7 +127,7 @@ function StartPage() {
     return <div>Error: {error} </div>;
   }
 
-  const onModalSubmit = (
+  const onModalSubmit = async (
     websites: Website[],
     token: string,
     value: AlertType,
@@ -133,10 +142,14 @@ function StartPage() {
         email: value === AlertType.mail ? token : "",
       },
     }));
-    addNotifcations({ tasks: tasks, captcha });
+    await addNotifcations({ tasks: tasks, captcha });
   };
 
-  const onModalDelete = (token: string, value: AlertType, captcha: string) => {
+  const onModalDelete = async (
+    token: string,
+    value: AlertType,
+    captcha: string
+  ) => {
     const deleteTask: DeleteTask = {
       destination: Number(value),
       recipient: {
@@ -146,9 +159,7 @@ function StartPage() {
       },
       captcha,
     };
-    try {
-      deleteNotifications(deleteTask);
-    } catch (error) {}
+    await deleteNotifications(deleteTask);
   };
 
   return (

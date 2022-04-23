@@ -1,57 +1,80 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
-	"time"
 
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gocolly/colly"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/etag"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
-	"gopkg.in/ezzarghili/recaptcha-go.v4"
 
-	"github.com/jufabeck2202/piScraper/adaptors"
-	"github.com/jufabeck2202/piScraper/messaging"
-	"github.com/jufabeck2202/piScraper/messaging/types"
-	"github.com/jufabeck2202/piScraper/utils"
+	"github.com/jufabeck2202/piScraper/internal/adaptors"
+	"github.com/jufabeck2202/piScraper/internal/core/domain"
+	"github.com/jufabeck2202/piScraper/internal/core/ports"
+	"github.com/jufabeck2202/piScraper/internal/core/services/alertsrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/captchasrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/mailsrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/notificationsrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/validatesrv"
+	"github.com/jufabeck2202/piScraper/internal/core/services/websitesrv"
+	"github.com/jufabeck2202/piScraper/internal/handlers"
+	"github.com/jufabeck2202/piScraper/internal/repositories/platforms/pushover"
+	"github.com/jufabeck2202/piScraper/internal/repositories/platforms/webhook.go"
+	"github.com/jufabeck2202/piScraper/internal/repositories/redis"
 )
 
-var websites = utils.Websites{}
-
-var alertManager = messaging.NewAlerts()
-
-type AddTask struct {
-	Tasks  []types.AlertTask `json:"tasks"`
-	Capcha string            `json:"captcha"`
-}
-type DeleteTask struct {
-	Recipient   types.Recipient `json:"recipient"`
-	Destination types.Platform  `json:"destination"`
-	Capcha      string          `json:"captcha"`
-}
+var (
+	redisRepository     ports.RedisRepository
+	websiteService      ports.WebsiteService
+	alertService        ports.AlertService
+	notificationService ports.NotificationService
+	mailService         ports.MailService
+	captchaService      ports.CaptchaService
+	validateService     ports.ValidateService
+)
 
 func main() {
-	fmt.Println(time.Now())
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println("No .env file found", err)
 	}
-	logEnv()
-	captcha, _ := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_SECRET"), recaptcha.V3, 10*time.Second) // for v3 API use https://g.co/recaptcha/v3 (apperently the same admin UI at the time of writing)
+
+	// Initialize the app
+	redisRepository, err = redis.NewRedisRepository()
+	if err != nil {
+		panic("Could not connect to redis")
+	}
+	websiteService = websitesrv.New(redisRepository)
+	alertService = alertsrv.New(redisRepository, websiteService)
+	mailService = mailsrv.New(redisRepository)
+	captchaService, err = captchasrv.New()
+	if err != nil {
+		panic("Could not connect to captcha service")
+	}
+	validateService = validatesrv.New()
+
+	// logEnv()
 	go startScraper()
 
-	go messaging.Init()
-
 	app := fiber.New()
-	app.Use(
-		helmet.New(),
-	)
-
-	// // Used for local testing
+	app.Use(helmet.New())
+	app.Use(compress.New())
+	app.Use(etag.New())
+	app.Use(favicon.New())
+	app.Use(logger.New())
+	app.Use(recover.New())
+	app.Use(requestid.New())
+	app.Use(cors.New())
+	// Used for local testing
 	// app.Use(cors.New(cors.Config{
 	// 	AllowOrigins: "http://localhost:3000",
 	// 	AllowHeaders: "Origin, Content-Type, Accept",
@@ -60,108 +83,60 @@ func main() {
 	prometheus := fiberprometheus.New("pi-stock-de")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
-	// Or extend your config for customization
-	app.Static("/", "./frontend/build")
 
-	app.Get("/api/v1/status", func(c *fiber.Ctx) error {
+	//controllers
+	getController := handlers.NewGetHandler(websiteService)
+	alertController := handlers.NewAlertHandler(websiteService, validateService, captchaService, alertService, mailService)
+	deleteController := handlers.NewDeleteHandler(websiteService, validateService, captchaService, alertService)
+	rssController := handlers.NewRssHandler(websiteService)
+	verifyController := handlers.NewVerifMailHandler(mailService)
+	unsubscribeController := handlers.NewUnsubscribeMailHandler(alertService, mailService)
 
-		return c.JSON(websites.GetList())
+	//routes
+	app.Static("/", "./frontend/build", fiber.Static{
+		CacheDuration: 0,
+		MaxAge:        0,
 	})
-
-	app.Post("/api/v1/alert", func(c *fiber.Ctx) error {
-		// Create new Book struct
-		addTasks := &AddTask{}
-
-		// Check, if received JSON data is valid.
-		if err := c.BodyParser(addTasks); err != nil {
-			log.Println("error: ", err)
-			// Return status 400 and error message.
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
-		}
-		err := captcha.Verify(addTasks.Capcha)
-		if err != nil {
-			log.Println("error: ", err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
-		}
-		//check if the task is valid
-		for _, t := range addTasks.Tasks {
-			if t.Recipient.Pushover == "" && t.Recipient.Webhook == "" && t.Recipient.Email == "" || t.Destination > 3 || t.Destination < 1 {
-				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-					"error": true,
-					"msg":   "invalid task structure",
-				})
-			}
-		}
-		//Add task to alert
-		for _, t := range addTasks.Tasks {
-			alertManager.AddAlert(t.Website.URL, messaging.Task{t.Recipient, t.Destination})
-		}
-		log.Println("Added new Notification")
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"error": false,
-			"msg":   "task added",
-		})
+	app.Static("/verify/*", "./frontend/build", fiber.Static{
+		CacheDuration: 0,
+		MaxAge:        0,
 	})
-
-	app.Delete("/api/v1/alert/", func(c *fiber.Ctx) error {
-		deleteTask := &DeleteTask{}
-
-		// Check, if received JSON data is valid.
-		if err := c.BodyParser(deleteTask); err != nil {
-			// Return status 400 and error message.
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
-		}
-		err := captcha.Verify(deleteTask.Capcha)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
-		}
-		//check if the task is valid
-		if deleteTask.Recipient.Pushover == "" && deleteTask.Recipient.Webhook == "" && deleteTask.Recipient.Email == "" || deleteTask.Destination > 3 || deleteTask.Destination < 1 {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   "invalid task structure",
-			})
-		}
-		numberOfDeletedNotifications := alertManager.DeleteTask(websites.GetAllUrls(), deleteTask.Recipient, deleteTask.Destination)
-		log.Println("Removed Notification for ", deleteTask.Recipient)
-		return c.JSON(numberOfDeletedNotifications)
+	app.Static("/unsubscribe/*", "./frontend/build", fiber.Static{
+		CacheDuration: 0,
+		MaxAge:        0,
 	})
-
+	app.Get("/api/v1/status", getController.Get)
+	app.Get("/rss", rssController.Get)
+	app.Get("/api/v1/verify/:email", verifyController.Get)
+	app.Get("/api/v1/unsubscribe/:email", unsubscribeController.Get)
+	app.Post("/api/v1/alert", alertController.Post)
+	app.Delete("/api/v1/alert/", deleteController.Delete)
 	app.Listen(":3001")
 }
 
 func startScraper() {
-	websites.Init()
+	pushoverServie := pushover.NewPushover()
+	webhookService := webhook.NewWebhook()
+	notificationService = notificationsrv.NewNotificationService(mailService, pushoverServie, webhookService)
 	c := cron.New()
 	searchPi(true)
-	c.AddFunc("*/5 * * * *", func() {
+	log.Println("Starting cron job")
+
+	c.AddFunc("*/1 * * * *", func() {
 		searchPi(false)
 	})
 	c.Start()
 }
+
 func searchPi(firstRun bool) {
-	log.Println("Searching for Pi")
-	adaptorsList := make([]adaptors.Adaptor, 0)
-	websites.Load()
+	adaptorsList := make([]ports.Adaptor, 0)
+	websiteService.Load()
 	c := colly.NewCollector(
 		colly.Async(true),
 	)
-	//
-	adaptorsList = append(adaptorsList, adaptors.NewBechtle(c), adaptors.NewRappishop(c), adaptors.NewOkdo(c), adaptors.NewBerryBase(c), adaptors.NewSemaf(c), adaptors.NewBuyZero(c), adaptors.NewELV(c), adaptors.NewWelectron(c), adaptors.NewPishop(c), adaptors.NewFunk24(c), adaptors.NewReichelt(c))
+	adaptorsList = append(adaptorsList, adaptors.NewBechtle(c, websiteService), adaptors.NewRappishop(c, websiteService), adaptors.NewOkdo(c, websiteService), adaptors.NewBerryBase(c, websiteService), adaptors.NewSemaf(c, websiteService), adaptors.NewBuyZero(c, websiteService), adaptors.NewELV(c, websiteService), adaptors.NewWelectron(c, websiteService), adaptors.NewPishop(c, websiteService), adaptors.NewFunk24(c, websiteService), adaptors.NewReichelt(c, websiteService))
 	for _, site := range adaptorsList {
-		site.Run(websites)
+		site.Run()
 	}
 
 	for _, site := range adaptorsList {
@@ -169,33 +144,26 @@ func searchPi(firstRun bool) {
 	}
 
 	if !firstRun {
-		changes := websites.CheckForChanges()
+		changes := websiteService.CheckForChanges()
 		if len(changes) > 0 {
+			log.Println("Found Updates: ", len(changes))
 			scheduleUpdates(changes)
 		}
-		log.Println("no changes")
 	}
-	websites.Save()
+	websiteService.Save()
 }
 
-func scheduleUpdates(websites []utils.Website) {
-	tasksToSchedule := []types.AlertTask{}
+func scheduleUpdates(websites domain.Websites) {
+	tasksToSchedule := make([]domain.AlertTask, len(websites))
 
 	for _, w := range websites {
-		log.Printf("%s changed", w.URL)
-		alert := alertManager.LoadAlerts(w.URL)
+		log.Printf("%s changed \n", w.URL)
+		alert := alertService.LoadAlerts(w.URL)
 		for _, t := range alert {
-			tasksToSchedule = append(tasksToSchedule, types.AlertTask{w, t.Recipient, t.Destination})
-			log.Println("scheduling update for ", w.URL)
-			log.Println(t.Recipient)
+			tasksToSchedule = append(tasksToSchedule, domain.AlertTask{Website: w, Recipient: t.Recipient, Destination: t.Destination})
+			log.Printf("scheduling update for %s and %s \n", w.URL, t.Recipient)
 		}
 	}
 	log.Println("Found websites to update: ", len(tasksToSchedule))
-	messaging.AddToQueue(tasksToSchedule)
-}
-func logEnv() {
-	log.Println("HOST_URL: " + os.Getenv("HOST_URL"))
-	log.Println("RECAPTCHA_SECRET: " + os.Getenv("RECAPTCHA_SECRET"))
-	log.Println("REDIS_HOST: " + os.Getenv("REDIS_HOST"))
-	log.Println("REDIS_PASSWORD: " + os.Getenv("REDIS_PASSWORD"))
+	notificationService.Notifiy(tasksToSchedule)
 }

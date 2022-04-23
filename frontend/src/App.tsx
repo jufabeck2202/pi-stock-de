@@ -11,10 +11,15 @@ import {
   MantineProvider,
   Text,
 } from "@mantine/core";
-import { Sun, MoonStars, BrandGithub } from "tabler-icons-react";
+import { Sun, MoonStars, BrandGithub, Rss } from "tabler-icons-react";
 import StartPage from "./startPage/StartPage";
 import { Logo } from "./Logo";
 import { NotificationsProvider } from "@mantine/notifications";
+import { Routes, Route } from "react-router-dom";
+import VerifyPage from "./VerifyMail/VerifyPage";
+import { FooterCentered } from "./footer";
+import PrivacyPolicy from "./Footer/PrivacyPolicy";
+import UnsubscribeEmailPage from "./UnsubscribeMail/UnsubscribeMail";
 
 const queryClient = new QueryClient();
 function App() {
@@ -56,6 +61,13 @@ function App() {
                       </ActionIcon>
                       <ActionIcon
                         variant="default"
+                        onClick={() => window.open("/rss", "_blank")}
+                        size={30}
+                      >
+                        <Rss size={16} />
+                      </ActionIcon>
+                      <ActionIcon
+                        variant="default"
                         onClick={() => toggleColorScheme()}
                         size={30}
                       >
@@ -78,7 +90,18 @@ function App() {
                 },
               })}
             >
-              <StartPage />
+              <Routes>
+                <Route path="/" element={<StartPage />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/verify/:email" element={<VerifyPage />} />
+                <Route
+                  path="/unsubscribe/:email"
+                  element={<UnsubscribeEmailPage />}
+                />
+              </Routes>
+              <FooterCentered
+                links={[{ link: "/privacy", label: "Privacy Policy" }]}
+              />
             </AppShell>
             <ReactQueryDevtools />
           </QueryClientProvider>
