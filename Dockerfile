@@ -10,11 +10,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the code into the container.
-COPY adaptors/ ./adaptors
-COPY messaging/ ./messaging
-COPY storage/ ./storage
-COPY utils/ ./utils
-COPY routes/ ./routes
+COPY internal/ ./internal
 COPY main.go ./
 COPY go.mod go.sum ./
 # Set necessary environment variables needed for our image and build the API server.
