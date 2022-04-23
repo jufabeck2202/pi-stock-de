@@ -11,7 +11,7 @@
 - Frontend:
   - React
   - Mantine
-  - React-Fetch
+  - React-Query
   - Typescript  
 
 ## Monitored Stores
