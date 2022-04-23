@@ -11,10 +11,7 @@ export default function UnsubscribeEmailPage() {
   const { email } = useParams();
   const { isLoading, error, data } = useQuery<UnsubscribeEmailResponse>(
     "status",
-    () =>
-      fetch("http://localhost:3001/api/v1/unsubscribe/" + email).then((res) =>
-        res.json()
-      ),
+    () => fetch("/api/v1/unsubscribe/" + email).then((res) => res.json()),
     {
       refetchOnWindowFocus: false,
       refetchOnMount: false,

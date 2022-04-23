@@ -19,7 +19,7 @@ import { Routes, Route } from "react-router-dom";
 import VerifyPage from "./VerifyMail/VerifyPage";
 import { FooterCentered } from "./footer";
 import PrivacyPolicy from "./Footer/PrivacyPolicy";
-import UnsubscribeEmailPage from "./UnsubscribeMail/VerifyPage";
+import UnsubscribeEmailPage from "./UnsubscribeMail/UnsubscribeMail";
 
 const queryClient = new QueryClient();
 function App() {

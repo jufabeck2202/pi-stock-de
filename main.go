@@ -32,17 +32,8 @@ import (
 	"github.com/jufabeck2202/piScraper/internal/repositories/redis"
 )
 
-/*
-TODO:
-- Implement Verify Email Server Route
-- Add React Router to Frontend
-- Add React route to verify email
-- excape unwanted characters from verify token
-*/
-
 var (
-	redisRepository ports.RedisRepository
-
+	redisRepository     ports.RedisRepository
 	websiteService      ports.WebsiteService
 	alertService        ports.AlertService
 	notificationService ports.NotificationService
@@ -82,12 +73,12 @@ func main() {
 	app.Use(logger.New())
 	app.Use(recover.New())
 	app.Use(requestid.New())
-
+	app.Use(cors.New())
 	// Used for local testing
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000",
-		AllowHeaders: "Origin, Content-Type, Accept",
-	}))
+	// app.Use(cors.New(cors.Config{
+	// 	AllowOrigins: "http://localhost:3000",
+	// 	AllowHeaders: "Origin, Content-Type, Accept",
+	// }))
 	//Monitoring
 	prometheus := fiberprometheus.New("pi-stock-de")
 	prometheus.RegisterAt(app, "/metrics")

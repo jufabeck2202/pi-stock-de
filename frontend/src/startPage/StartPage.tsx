@@ -42,7 +42,7 @@ type DeleteTask = {
 };
 
 const createTasks = async (data: AddTasks) => {
-  const response = await fetch("http://localhost:3001/api/v1/alert", {
+  const response = await fetch("/api/v1/alert", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -56,7 +56,7 @@ const createTasks = async (data: AddTasks) => {
 };
 
 const deleteTasks = async (data: DeleteTask): Promise<number> => {
-  const response = await fetch("http://localhost:3001/api/v1/alert", {
+  const response = await fetch("/api/v1/alert", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -111,8 +111,7 @@ function StartPage(): JSX.Element {
   const notifications = useNotifications();
   const { isLoading, error, data } = useQuery<Website[]>(
     "status",
-    () =>
-      fetch("http://localhost:3001/api/v1/status").then((res) => res.json()),
+    () => fetch("/api/v1/status").then((res) => res.json()),
     {
       refetchOnWindowFocus: true,
       refetchInterval: 10000,

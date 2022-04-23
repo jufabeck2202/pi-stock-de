@@ -11,10 +11,7 @@ export default function VerifyPage() {
   const { email } = useParams();
   const { isLoading, error, data } = useQuery<VerifyRespose>(
     "status",
-    () =>
-      fetch("http://localhost:3001/api/v1/verify/" + email).then((res) =>
-        res.json()
-      ),
+    () => fetch("/api/v1/verify/" + email).then((res) => res.json()),
     {
       refetchOnWindowFocus: false,
       refetchOnMount: false,
