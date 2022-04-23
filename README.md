@@ -51,7 +51,7 @@ Supply the environment variables using the `.env` file.
 See the `.env.example` file for all environment variables.
 
 ## Development
-PI-STOCK-DE is build using golang, go-fiber and colly for scraping and React together with mantine for the frontend.
+PI-STOCK-DE is build using golang, go-fiber, and colly for scraping and React together with mantine for the frontend.
 ```
 go run main.go
 cd frontend
@@ -60,7 +60,6 @@ npm build
 To develop the frontend live, you need to change the cors settings for the go-fiber config.
 
 ## Add new Shop
-To add a new shop, you can simply create a new adaptors inside the `adaptors` folder.
+To add a new shop, you can simply create a new adaptor inside the `adaptors` folder.
 
-Add the Shop URLs to monitor to the `websites.yaml` file, and initalize the adaptor inside the `main.go` file.
-
+Add the Shop URLs to monitor to the `websites.yaml` file, and initialize the adaptor inside the `main.go` file.
