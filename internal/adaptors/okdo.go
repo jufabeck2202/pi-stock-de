@@ -2,8 +2,6 @@ package adaptors
 
 import (
 	"regexp"
-	"strings"
-	"time"
 
 	"github.com/gocolly/colly"
 
