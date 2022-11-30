@@ -35,7 +35,7 @@ func (b *Okdo) Run() {
 	b.c.OnRequest(func(r *colly.Request) {
 		r.Ctx.Put("url", r.URL.String())
 	})
-
+	/* TODO FIX
 	b.c.OnHTML(".single-product-summary", func(e *colly.HTMLElement) {
 		item := b.websiteService.GetItemById(e.Request.Ctx.Get("url"))
 		item.Name = e.ChildText(".c-product__title")
@@ -45,7 +45,7 @@ func (b *Okdo) Run() {
 		item.UnixTime = time.Now().Unix()
 		b.websiteService.UpdateItemInList(item)
 	})
-
+     */
 }
 
 func (b *Okdo) Wait() {
